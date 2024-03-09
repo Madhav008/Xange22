@@ -1,0 +1,47 @@
+POST http://192.168.1.65:3132/player/ HTTP/1.1
+content-type: application/json
+
+{"seriesId":"1378852","matchId":"1378859"}
+
+
+###
+GET https://hs-consumer-api.espncricinfo.com/v1/pages/player/matches?playerId=1070173
+
+###
+GET http://localhost:3132/corn/start
+
+###
+GET http://localhost:3132/corn/status
+
+###
+POST http://192.168.1.65:3132/player/teams/ HTTP/1.1
+content-type: application/json
+
+{"teamId":6}
+
+###
+POST http://192.168.1.65:3132/match/info  HTTP/1.1
+content-type: application/json
+
+{"matchId":1336051,"seriesId":1336039}
+
+###
+GET http://192.168.1.65:3132/match/530811
+
+###
+GET http://192.168.1.65:3132/performance/530811
+
+
+###
+POST http://192.168.1.65:3132/order/create
+content-type: application/json
+
+{
+    "price": 100,
+    "qty": 10,
+    "timestamp": "2023-09-23T12:00:00.000Z", 
+    "status": "Pending",
+    "user": "madhavjjinfa",
+    "orderType": "Sell",
+    "playerId": "asdfsdfsdfsdfd"
+}
