@@ -4,11 +4,17 @@ const authRoutes = require('./api/routes/auth');
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require("cookie-parser"); // parse cookie header
+const swaggerUi = require('swagger-ui-express');
+const specs = require('./swagger');
+
 require('./initDB')();
 require('dotenv').config();
 
-app.use(morgan('dev'));
 
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+app.use(morgan('dev'));
 
 // parse cookies
 app.use(cookieParser());
@@ -27,7 +33,6 @@ app.use(
 
 
 
-// Use the authentication routes
 app.use('/auth', authRoutes);
 
 

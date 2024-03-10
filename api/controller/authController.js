@@ -124,7 +124,7 @@ const register = async (req, res) => {
     await createWalletHelper(newUser._id);
 
     // Return the new user and the token in the response
-    res.status(200).json({ data: user, newUser, token });
+    res.status(200).json({ user, newUser, token });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -147,11 +147,41 @@ const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '30d' });
 
     // Include the token in the response
-    res.status(200).json({ data: user, token });
+    res.status(200).json({ user, token });
   } catch (error) {
     res.status(500).json(error);
   }
 }
+
+
+//USER
+const user = async (req, res) => {
+  let token
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+
+    try {
+      token = req.headers.authorization.split(' ')[1]
+      if (!token) {
+        res.status(401).json({ message: "Not authorized, no token" })
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      let user = await User.findById(decoded.userId).select('-password')
+
+      res.status(200).json({ user })
+    } catch (error) {
+      console.error(error)
+      res.status(401)
+      throw new Error('Not authorized, token failed')
+    }
+  }
+
+
+
+}
+
 
 module.exports = router;
 
@@ -159,5 +189,5 @@ module.exports = {
   googleLogin,
   googleCallback,
   successEndpoint,
-  register, login
+  register, login, user
 };
