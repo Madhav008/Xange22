@@ -4,7 +4,7 @@ const Performance = require("../models/Performance");
 const { Wallet } = require("../models/Wallet");
 
 const createOrder = async (req, res) => {
-    const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId } = req.body;
+    const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
     try {
         // Fetch the user's wallet and check its existence
         const userWallet = await Wallet.findOne({ userid: user });
@@ -23,7 +23,7 @@ const createOrder = async (req, res) => {
 
         // Create a new order
         const order = new Orders({
-            price, amount, qty, timestamp, status, user, orderType, playerId, matchId
+            price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId
         });
 
         // Save the order to the database
