@@ -106,7 +106,6 @@ async function getPlayersData(matchkey) {
 async function runAndStoreData() {
     try {
         const matchesData = await RecentMatches.find({});
-        console.log(matchesData);
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;

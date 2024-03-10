@@ -19,4 +19,4 @@ const PlayerStatsSchema = new mongoose.Schema({
 
 const PlayerStats = mongoose.model('Player', PlayerStatsSchema);
 
-module.exports = { PlayerStats };
+module.exports = PlayerStats;

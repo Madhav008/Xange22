@@ -1,4 +1,4 @@
-const { PlayerStats } = require("../models/PlayerStats");
+const PlayerStats = require("../models/PlayerStats");
 
 async function getPlayersByMatch(req, res) {
     const { matchkey } = req.body;
