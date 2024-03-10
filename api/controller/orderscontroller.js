@@ -4,10 +4,10 @@ const Performance = require("../models/Performance");
 const { Wallet } = require("../models/Wallet");
 
 const createOrder = async (req, res) => {
-    const { price, amount, qty, timestamp, status, user, orderType, playerId, walletId } = req.body;
+    const { price, amount, qty, timestamp, status, user, orderType, playerId } = req.body;
     try {
         // Fetch the user's wallet and check its existence
-        const userWallet = await Wallet.findById(walletId);
+        const userWallet = await Wallet.findOne({ userid: user });
         if (!userWallet) {
             return res.status(404).json({ message: "User's wallet not found" });
         }
@@ -29,28 +29,32 @@ const createOrder = async (req, res) => {
         // Save the order to the database
         await order.save();
 
-        // Update the order book based on the orderType
         const updateField = orderType === "buy" ? 'buyOrders' : orderType === "sell" ? 'sellOrders' : null;
 
         if (updateField) {
-            let orderBook = await OrderBook.findOne({ playerId: playerId });
-            console.log(orderBook)
-            if (orderBook.length == 0) {
-                orderBook = await OrderBook.create({
-                    playerId: playerId
-                });
+            try {
+                let orderBook = await OrderBook.findOne({ playerId: playerId });
+
+                if (!orderBook) {
+                    orderBook = await OrderBook.create({
+                        playerId: playerId,
+                        buyOrders: [],
+                        sellOrders: [],
+                    });
+                }
+
+                orderBook[updateField].push(order._id);
+                await orderBook.save();
+            } catch (error) {
+                return res.status(500).json({ message: "Internal server error", error: error });
             }
-            orderBook = await OrderBook.findByIdAndUpdate(
-                orderBook._id,
-                { $push: { [updateField]: order._id } },
-                { new: true, upsert: true }
-            );
         } else {
             return res.status(400).json({ message: "Invalid orderType" });
         }
+
         res.status(200).json({ order, updatedWallet: userWallet });
     } catch (error) {
-        console.error(error.message);
+        console.error(error);
         res.status(500).json({ message: "Order not executed" });
     }
 };

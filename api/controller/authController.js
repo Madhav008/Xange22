@@ -103,6 +103,14 @@ const successEndpoint = (async (req, res) => {
 //Regiuseter
 const register = async (req, res) => {
   try {
+    // Check if user with the provided email already exists
+    const existingUser = await User.findOne({ email: req.body.email });
+
+    if (existingUser) {
+      // User with the provided email already exists
+      return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
     // Generate password hash
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -121,14 +129,15 @@ const register = async (req, res) => {
     const token = jwt.sign({ userId: newUser._id }, jwtSecret, { expiresIn: '30d' });
 
     // Create a wallet for the new user
-    await createWalletHelper(newUser._id);
+    await createWalletHelper(newUser._id.toString());
 
     // Return the new user and the token in the response
-    res.status(200).json({ user, newUser, token });
+    res.status(200).json({ user: newUser, token });
   } catch (error) {
     res.status(500).json(error);
   }
 };
+
 
 //lOGIN USER
 const login = async (req, res) => {

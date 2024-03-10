@@ -4,16 +4,15 @@ const { Wallet, Transaction } = require('../models/Wallet');
 
 const createWalletHelper = async (userid) => {
     // Check if the wallet already exists for the user
-    const existingWallet = await Wallet.findOne({ userid });
-
+    const existingWallet = await Wallet.findOne({ userid: userid });
     if (existingWallet) {
         return;
+    } else {
+        // Create a new wallet
+        const newWallet = await Wallet.create({ userid });
+        return newWallet
     }
 
-    // Create a new wallet
-    const newWallet = await Wallet.create({ userid });
-
-    return newWallet
 }
 
 
@@ -51,7 +50,7 @@ const getwallet = async (req, res) => {
     try {
         // Extract user ID from request body or headers based on your authentication
         const { userid } = req.params;
-
+        console.log(userid);
         // Validate that userid is provided
         if (!userid) {
             return res.status(400).json({ error: 'User ID is required.' });

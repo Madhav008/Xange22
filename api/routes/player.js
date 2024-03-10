@@ -5,9 +5,4 @@ const apiController = require('../controller/playerController');
 // Example protected API route
 router.post('/', apiController.getPlayersByMatch);
 
-
-
-
-
-
 module.exports = router;
