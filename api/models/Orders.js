@@ -22,7 +22,8 @@ const orderSchema = new mongoose.Schema({
         enum: ["buy", "sell"],
         required: true
     },
-    playerId:  String,
+    timestamp: String,
+    playerId: String,
     matchId: String,
     teamId: String,
     fees: Number,

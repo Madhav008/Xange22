@@ -5,24 +5,29 @@ const PlayerStats = require('../models/PlayerStats');
 const axios = require('axios');
 const seedMatches = async (req, res) => {
     try {
-        const matches_data = await getAllMatchesData();
-        for (const match of matches_data.data) {
+        const matchesData = await getAllMatchesData();
+
+        for (const match of matchesData.data) {
             // Check if the match already exists by matchkey
-            const existingMatch = await RecentMatches.findOne({
-                matchkey: match.matchkey
-            });
+            const existingMatch = await RecentMatches.findOne({ matchkey: match.matchkey });
 
             if (!existingMatch) {
                 // If match doesn't exist, seed the match
                 const newMatch = new RecentMatches(match);
                 await newMatch.save();
+            } else {
+                // If match already exists, update the existing match
+                await RecentMatches.findOneAndUpdate({ matchkey: match.matchkey }, match);
             }
         }
+
         res.json({ message: 'SEEDED ALL THE MATCHES' });
     } catch (error) {
         console.log(error.message);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 
 const seedPlayers = async (req, res) => {

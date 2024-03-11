@@ -1,7 +1,8 @@
 const OrderBook = require("../models/OrderBook");
 const Orders = require("../models/Orders");
-const Performance = require("../models/Performance");
 const { Wallet } = require("../models/Wallet");
+const RecentMatches = require('../models/Matches');
+const PlayerStats = require('../models/PlayerStats')
 
 const createOrder = async (req, res) => {
     const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
@@ -9,11 +10,13 @@ const createOrder = async (req, res) => {
         // Fetch the user's wallet and check its existence
         const userWallet = await Wallet.findOne({ userid: user });
         if (!userWallet) {
+            console.log("User's wallet not found")
             return res.status(404).json({ message: "User's wallet not found" });
         }
 
         // Check if the user has sufficient balance
         if (userWallet.balance < amount) {
+            console.log("Insufficient balance to place the order")
             return res.status(400).json({ message: "Insufficient balance to place the order" });
         }
 
@@ -46,12 +49,13 @@ const createOrder = async (req, res) => {
                 orderBook[updateField].push(order._id);
                 await orderBook.save();
             } catch (error) {
+                console.log(error)
                 return res.status(500).json({ message: "Internal server error", error: error });
             }
         } else {
+            console.log("I am here")
             return res.status(400).json({ message: "Invalid orderType" });
         }
-
         res.status(200).json({ order, updatedWallet: userWallet });
     } catch (error) {
         console.error(error);
@@ -63,42 +67,52 @@ const createOrder = async (req, res) => {
 
 
 
-const getOpenOrders = async (req, res) => {
-
+const getUserOrders = async (req, res) => {
     const { userId } = req.params;
+
     try {
+        const orders = await Orders.find({ user: userId });
+        const uniqueMatchIds = Array.from(new Set(orders.map(order => order.matchId)));
+        const matches = {};
 
-        let portfolio = [];
+        for (const matchId of uniqueMatchIds) {
+            const match = await RecentMatches.findOne({ matchkey: matchId });
+            const matchOrders = orders.filter(order => order.matchId === matchId);
+            const playersMap = {};
 
-        const orders = await Orders.find({
-            user: userId,
-            orderStatus: "Open"
-        })
-        for (const order of orders) {
-            // console.log(order)
-            const playerId = order.playerId;
+            for (const order of matchOrders) {
+                const playerkey = order.playerId;
+                const matchkey = order.matchId
+                if (!playersMap[playerkey]) {
+                    playersMap[playerkey] = {
+                        playerInfo: await PlayerStats.findOne({ playerkey, matchkey }),
+                        orders: []
+                    };
+                }
 
-            //Get latest performance of the player
-            const playerPerformanceMatches = await Performance.findOne({ playerId: playerId }).sort({ date: -1 });
-
-            //Get the player stats
-            const playerInfo = await PlayerStats.findOne({ playerId })
-
-            const portObj = {
-                order,
-                playerPerformanceMatches,
-                playerInfo
+                playersMap[playerkey].orders.push(order);
             }
 
-            portfolio.push(portObj)
+            const players = Object.values(playersMap);
+
+            matches[matchId] = {
+                match,
+                players
+            };
         }
 
-        res.status(200).json(portfolio)
+        const portfolio = Object.values(matches);
+
+        res.status(200).json(portfolio);
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: "No Orders found" })
+        res.status(500).json({ message: "Error fetching orders" });
     }
-}
+};
+
+
+
+
 const closeOrder = async (req, res) => {
     const { orderId, walletId, currentPrice } = req.body;
 
@@ -168,7 +182,7 @@ async function updateWallet(walletId, earningOrLoss) {
     }
 }
 module.exports = {
-    createOrder, getOpenOrders, closeOrder
+    createOrder, getUserOrders, closeOrder
 };
 
 
