@@ -6,9 +6,9 @@
     [*] Get the players
     [*] Seed the players
     [*] Create the order -> Get the PlatformFees -> Create the orderbook
-    [] Get the order 
-    [] Get the User Order
+    [*] Get the order 
+    [*] Get the User Order
     [] Store the images
 
 #   Bugs
-    [] Match seeding not updating the live matches
+    [*] Match seeding not updating the live matches
