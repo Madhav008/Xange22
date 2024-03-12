@@ -1,8 +1,9 @@
 // Example protected route controller
 const RecentMatches = require('../models/Matches');
 const PlayerStats = require('../models/PlayerStats');
-
 const axios = require('axios');
+const fs = require('fs');
+
 const seedMatches = async (req, res) => {
     try {
         const matchesData = await getAllMatchesData();
@@ -37,7 +38,7 @@ const seedPlayers = async (req, res) => {
 };
 
 module.exports = {
-    seedMatches, seedPlayers
+    seedMatches, seedPlayers, login
 };
 
 
@@ -46,9 +47,11 @@ module.exports = {
 async function getAllMatchesData() {
     // Set up the API endpoint and headers
     const url = 'https://api.exchange22.com/api/auth/getmatchlist';
+    const token = JSON.parse(fs.readFileSync('token.json')).token;
+
     const headers = {
         'accept-encoding': 'gzip',
-        'authorization': 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoX3VpZCI6ImE2YTJmYzA3LWUyY2YtNDc4OC1iYzQ3LWJkNWI1OTY1ZWMwZTEyNjEwNjIxNzA5NDcxMjM1IiwiZXhwIjoxNzEyMTcxMjM1LCJpZCI6MTI2MTA2MiwibmFtZSI6Im1hZGhhdmoyMTFAZ21haWwuY29tIn0.5kscrzEpTCzm97uX7iwPKQzS0TkIzUf_ukszq63Gpwg',
+        'Authorization': `Bearer ${token}`,
         'content-type': 'application/json',
         'devicetype': 'ANDROID',
         'host': 'api.exchange22.com',
@@ -75,9 +78,11 @@ async function getAllMatchesData() {
 // Function to get all players
 async function getPlayersData(matchkey) {
     const url = "https://api.exchange22.com/api/auth/getallplayers";
+    const token = JSON.parse(fs.readFileSync('token.json')).token;
+
     const headers = {
         "accept-encoding": "gzip",
-        "authorization": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoX3VpZCI6ImE2YTJmYzA3LWUyY2YtNDc4OC1iYzQ3LWJkNWI1OTY1ZWMwZTEyNjEwNjIxNzA5NDcxMjM1IiwiZXhwIjoxNzEyMTcxMjM1LCJpZCI6MTI2MTA2MiwibmFtZSI6Im1hZGhhdmoyMTFAZ21haWwuY29tIn0.5kscrzEpTCzm97uX7iwPKQzS0TkIzUf_ukszq63Gpwg",
+        'Authorization': `Bearer ${token}`,
         "content-type": "application/json",
         "devicetype": "ANDROID",
         "host": "api.exchange22.com",
@@ -143,3 +148,47 @@ async function runAndStoreData() {
 
 
 
+async function login() {
+
+    const url = 'https://api.exchange22.com/api/loginuser';
+    const headers = {
+        'Accept-Encoding': 'gzip',
+        'Authorization': 'Bearer',
+        'Content-Length': '420',
+        'Content-Type': 'application/json',
+        'DeviceType': 'ANDROID',
+        'Host': 'api.exchange22.com',
+        'SportType': '1',
+        'User-Agent': 'Dart/3.0 (dart:io)',
+    };
+
+    const data = {
+        email: null,
+        password: 'Madhav@21',
+        deviceId: null,
+        appid: 'esjBp61cR-WNJUDnm7RRa7:APA91bHy1x5BRzQHsUyuAMo2qmfJe8tEVbDTta1BA92wAwy96JO5iJ2xsqBaQSyl1v32dIROjkCs3Ea73rs5yQwqRKM2rDJc4mC2ik5ZCTQCjWiAG78d8KKFmKylLlioJcBQ3NZ2JoIb',
+        type: null,
+        social_id: null,
+        username: '7988236035',
+        image: null,
+        idToken: null,
+        authorizationCode: null,
+        socialLoginType: null,
+        name: null,
+        referral: null,
+        deep_link: null,
+        device_type: null,
+    };
+
+    try {
+        const res = await axios.post(url, data, { headers })
+            const token = res.data.data.token;
+            const jsonContent = JSON.stringify({ token });
+
+            fs.writeFileSync('token.json', jsonContent);
+
+            return token;
+    } catch (error) {
+        console.log(error);
+    }
+}
