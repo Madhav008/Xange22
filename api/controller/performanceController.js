@@ -1,112 +1,140 @@
-const RecentMatches = require("../models/Matches");
-const Performance = require("../models/Performance");
-const BattingStats = require("../models/PlayerBattingStats");
-const BowlingStats = require("../models/PlayerBowlingStats");
-const FieldingStats = require("../models/PlayerFieldingStats");
+const BattingPoints = require('../models/BattingPoints');
+const BowlingPoints = require('../models/BowlingPoints');
+const FieldingPoints = require('../models/FieldingPoints');
 
-const SeedPlayerPerformance = async () => {
-    console.log("DONE");
-};
-
-
-const PerformanceRoute = async (req, res) => {
-    // Handle the protected API route logic
-    const { playerId } = req.params;
-
-    await processPlayerMatches(parseInt(playerId, 10));
-    const playerPerformanceMatches = await Performance.find({ playerId: playerId }).sort({ date: -1 }).limit(25);
-    const result = [];
-
-    // Fetch match names for each performance entry
-    for (const performance of playerPerformanceMatches) {
-        const match = await RecentMatches.findOne({ matchId: performance.matchId });
-
-        if (match) {
-            const matchId = match.matchId;
-
-            // Retrieve batting, bowling, and fielding statistics for the match
-            var batStats = await getBatStatsForPlayer(playerId, matchId);
-            var bowlStats = await getBowlStatsForPlayer(playerId, matchId);
-            var fieldStats = await getFieldStatsForPlayer(playerId, matchId);
-            // Handle cases where statistics are null (no data available)
-            if (batStats == null) {
-                batStats = { points: 0 };
-            }
-
-            if (fieldStats == null) {
-                fieldStats = { points: 0 };
-            }
-
-            if (bowlStats == null) {
-                bowlStats = { points: 0 };
-            }
-
-            const performanceWithMatchName = {
-                ...performance.toObject(),
-                bowlStats: bowlStats.points, batStats: batStats.points, fieldStats: fieldStats.points,
-                name: match.name,
-                teams: match.teams // Add the match name to the performance object
-            };
-            result.push(performanceWithMatchName);
-        }
-    }
-
-    res.status(200).json(result);
-};
-
-//Get the Last match Performance 
-
-const LatestPerformance = async (playerId) => {
-   
-}
-
-const processPlayerMatches = async (playerId) => {
-    // Initialize variables to track total points, count, and oldPrice
-
-};
-
-module.exports = {
-    PerformanceRoute,
-    SeedPlayerPerformance,
-    LatestPerformance,
-    processPlayerMatches
-};
-
-
-
-
-
-
-
-
-const getFieldStatsForPlayer = async (playerId, matchId) => {
+const calculatePlayerPoints = async (playerPerformance) => {
     try {
-        const FieldStats = await FieldingStats.findOne({ playerId: playerId, matchId: matchId });
-        return FieldStats;
+        let totalPoints = 0;
+        // Calculate batting points
+        const battingPoints = await calculateBattingPoints(playerPerformance.batting);
+        totalPoints += battingPoints;
+        // Calculate bowling points
+        const bowlingPoints = await calculateBowlingPoints(playerPerformance.bowling);
+        totalPoints += bowlingPoints;
+
+        // Calculate fielding points
+        const fieldingPoints = await calculateFieldingPoints(playerPerformance.fielding);
+        totalPoints += fieldingPoints;
+
+        return totalPoints;
     } catch (error) {
-        console.log(error);
+        console.error('Error calculating player points:', error);
+        return 0;
     }
+};
+
+const calculateBattingPoints = async (battingPerformance) => {
+    let totalBattingPoints = 0;
+
+    // Fetch batting points based on the format
+    const battingPointsData = await BattingPoints.findOne({ format: battingPerformance?.format });
+
+    // Calculate points for runs, boundaries, and sixes
+    totalBattingPoints += (battingPerformance?.bat_runs || 0) * (battingPointsData?.run || 0);
+    totalBattingPoints += (battingPerformance?.four_hit || 0) * (battingPointsData?.boundary || 0);
+    totalBattingPoints += (battingPerformance?.six_hit || 0) * (battingPointsData?.six || 0);
+
+    // Add bonus points for half-century and century
+    if (battingPerformance?.bat_runs >= 50) {
+        totalBattingPoints += battingPointsData?.halfCenturyBonus || 0;
+    }
+    if (battingPerformance?.bat_runs >= 100) {
+        totalBattingPoints += battingPointsData?.centuryBonus || 0;
+    }
+
+    return totalBattingPoints;
+};
+
+const calculateBowlingPoints = async (bowlingPerformance) => {
+    let totalBowlingPoints = 0;
+
+    // Fetch bowling points based on the format
+    const bowlingPointsData = await BowlingPoints.findOne({ format: bowlingPerformance?.format });
+
+    // Calculate points for wickets
+    totalBowlingPoints += (bowlingPerformance?.wicket || 0) * (bowlingPointsData?.wicket || 0);
+
+    // Add bonus points for three, four, and five-wicket hauls
+    if (bowlingPerformance?.wicket >= 5) {
+        totalBowlingPoints += bowlingPointsData?.fiveWicketHaulBonus || 0;
+    } else if (bowlingPerformance?.wicket >= 4) {
+        totalBowlingPoints += bowlingPointsData?.fourWicketHaulBonus || 0;
+    } else if (bowlingPerformance?.wicket >= 3) {
+        totalBowlingPoints += bowlingPointsData?.threeWicketHaulBonus || 0;
+    }
+
+    // Calculate points for maiden overs
+    totalBowlingPoints += (bowlingPerformance?.maidian_over || 0) * (bowlingPointsData?.maidenOver || 0);
+
+    return totalBowlingPoints;
+};
+
+
+const calculateFieldingPoints = async (fieldingPerformance) => {
+    let totalFieldingPoints = 0;
+
+    // Fetch fielding points based on the format
+    const fieldingPointsData = await FieldingPoints.findOne({ format: fieldingPerformance?.format });
+
+    // Calculate points for catches, run-outs, and stumpings
+    totalFieldingPoints += (fieldingPerformance?.catches || 0) * (fieldingPointsData?.catch || 0);
+    totalFieldingPoints += (fieldingPerformance?.runouts || 0) * (fieldingPointsData?.runOutThrower || 0);
+    totalFieldingPoints += (fieldingPerformance?.stumping || 0) * (fieldingPointsData?.stumping || 0);
+
+    return totalFieldingPoints;
+};
+
+
+
+
+// Function to get player's batting stats
+function getPlayerBattingStats(matchData, playerId) {
+    return matchData.batting[playerId];
 }
 
-const getBowlStatsForPlayer = async (playerId, matchId) => {
-    try {
-        const bowlStats = await BowlingStats.findOne({ playerId: playerId, matchId: matchId });
-        return bowlStats;
-    } catch (error) {
-        console.log(error);
-    }
+// Function to get player's bowling stats
+function getPlayerBowlingStats(matchData, playerId) {
+    return matchData.bowling[playerId];
 }
 
-
-const getBatStatsForPlayer = async (playerId, matchId) => {
-    try {
-        const batStats = await BattingStats.findOne({ playerId: playerId, matchId: matchId });
-        return batStats;
-    } catch (error) {
-        console.log(error);
-    }
+// Function to get player's fielding stats
+function getPlayerFieldingStats(matchData, playerId) {
+    return matchData.fielding[playerId];
 }
 
+// Function to get player's complete stats
+function getPlayerStats(matchData, playerId) {
+    const battingStats = getPlayerBattingStats(matchData, playerId);
+    const bowlingStats = getPlayerBowlingStats(matchData, playerId);
+    const fieldingStats = getPlayerFieldingStats(matchData, playerId);
 
+    return {
+        batting: { ...battingStats, format: matchData.format },
+        bowling: { ...bowlingStats, format: matchData.format },
+        fielding: { ...fieldingStats, format: matchData.format }
+    };
+}
 
+// Function to write player's stats to a JSON file
+function writePlayerStats(matchData, playerId, playerName) {
+    const playerStats = getPlayerStats(matchData, playerId);
 
+    // Create JSON string for player's stats
+    return calculatePlayerPoints(playerStats);
+}
+
+// Iterate over each player in the teamPlayers array, write their stats to JSON files, and collect points
+async function parseAllPlayersStats(matchData) {
+    let playerStatsArray = [];
+
+    for (const player of matchData.teamPlayers) {
+        const playerId = player.playerId;
+        const playerName = player.name;
+        const playerPoints = await writePlayerStats(matchData, playerId, playerName);
+        playerStatsArray.push({ playerId, playerName, points: playerPoints });
+    }
+
+    return playerStatsArray;
+}
+
+module.exports = parseAllPlayersStats;

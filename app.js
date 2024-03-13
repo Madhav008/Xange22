@@ -30,8 +30,12 @@ app.use(
   })
 );
 
+const seedPoints = require('./api/Seed Points/pointSeeder');
 
-
+app.get('/seedpoints', async (req, res) => {
+  await seedPoints();
+  res.json({ message: "Point system done" });
+})
 
 app.use('/auth', authRoutes);
 
@@ -50,8 +54,8 @@ const player = require('./api/routes/player')
 app.use('/player', player)
 
 
-// const performance = require('./api/routes/performance')
-// app.use('/performance', performance)
+const performance = require('./api/routes/performance')
+app.use('/performance', performance)
 
 
 const order = require('./api/routes/order');

@@ -14,7 +14,7 @@ const PlayerStatsSchema = new mongoose.Schema({
     image: String,
     team: String,
     teamname: String,
-    total_stock: Number
+    total_stock: { type: Number, default: 100 }
 });
 
 const PlayerStats = mongoose.model('Player', PlayerStatsSchema);

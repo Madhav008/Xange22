@@ -62,7 +62,6 @@ async function getAllMatchesData() {
     try {
         // Make a GET request to get all matches
         const response = await axios.get(url, { headers });
-
         // Check if the request was successful (status code 200)
         if (response.status === 200) {
             return response.data;
@@ -115,7 +114,7 @@ async function getPlayersData(matchkey) {
 // Function to run and store data
 async function runAndStoreData() {
     try {
-        const matchesData = await RecentMatches.find({});
+        const matchesData = await RecentMatches.find({ status: { $ne: "completed" } });
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;
@@ -182,12 +181,12 @@ async function login() {
 
     try {
         const res = await axios.post(url, data, { headers })
-            const token = res.data.data.token;
-            const jsonContent = JSON.stringify({ token });
+        const token = res.data.data.token;
+        const jsonContent = JSON.stringify({ token });
 
-            fs.writeFileSync('token.json', jsonContent);
+        fs.writeFileSync('token.json', jsonContent);
 
-            return token;
+        return token;
     } catch (error) {
         console.log(error);
     }

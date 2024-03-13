@@ -1,0 +1,678 @@
+{
+  "teams": [
+    {
+      "id": 7050,
+      "objectId": 1358720,
+      "slug": "mumbai-indians-women",
+      "url": "/team/mumbai-indians-women-1358720",
+      "name": "MI Women",
+      "longName": "Mumbai Indians Women",
+      "abbreviation": "MI-W",
+      "imageUrl": "/db/PICTURES/CMS/344000/344062.png"
+    },
+    {
+      "id": 7053,
+      "objectId": 1358723,
+      "slug": "royal-challengers-bangalore-women",
+      "url": "/team/royal-challengers-bangalore-women-1358723",
+      "name": "RCB Women",
+      "longName": "Royal Challengers Bangalore Women",
+      "abbreviation": "RCB-W",
+      "imageUrl": "/db/PICTURES/CMS/355600/355629.jpg"
+    }
+  ],
+  "teamPlayers": [
+    {
+      "playerId": 474308,
+      "name": "Hayley Matthews",
+      "shortName": "HK Matthews",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 960955,
+      "name": "Sajeevan Sajana",
+      "shortName": "S Sajana",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 515905,
+      "name": "Nat Sciver-Brunt",
+      "shortName": "Nat Sciver-Brunt",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 372317,
+      "name": "Harmanpreet Kaur",
+      "shortName": "H Kaur",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 803971,
+      "name": "Amelia Kerr",
+      "shortName": "AC Kerr",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 1255411,
+      "name": "Amanjot Kaur",
+      "shortName": "AB Kaur",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 883413,
+      "name": "Pooja Vastrakar",
+      "shortName": "P Vastrakar",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 961005,
+      "name": "Humaira Kazi",
+      "shortName": "HY Kazi",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 1255564,
+      "name": "Priyanka Bala",
+      "shortName": "PP Bala",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 276997,
+      "name": "Shabnim Ismail",
+      "shortName": "S Ismail",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 597815,
+      "name": "Saika Ishaque",
+      "shortName": "S Ishaque",
+      "teamId": 1358720
+    },
+    {
+      "playerId": 597806,
+      "name": "Smriti Mandhana",
+      "shortName": "S Mandhana",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 944373,
+      "name": "Sophie Molineux",
+      "shortName": "S Molineux",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 275487,
+      "name": "Ellyse Perry",
+      "shortName": "EA Perry",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 231740,
+      "name": "Sophie Devine",
+      "shortName": "SFM Devine",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 1212830,
+      "name": "Richa Ghosh",
+      "shortName": "RM Ghosh",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 946057,
+      "name": "Georgia Wareham",
+      "shortName": "G Wareham",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 961183,
+      "name": "Disha Kasat",
+      "shortName": "DD Kasat",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 1289948,
+      "name": "Shreyanka Patil",
+      "shortName": "SR Patil",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 550687,
+      "name": "Asha Sobhana",
+      "shortName": "A Sobhana",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 1255517,
+      "name": "Shradda Pokharkar",
+      "shortName": "SB Pokharkar",
+      "teamId": 1358723
+    },
+    {
+      "playerId": 960853,
+      "name": "Renuka Singh",
+      "shortName": "Renuka Singh",
+      "teamId": 1358723
+    }
+  ],
+  "batting": {
+    "231740": {
+      "playerId": 231740,
+      "matchId": "1417734",
+      "bat_runs": 4,
+      "balls_faced": 2,
+      "six_hit": 0,
+      "four_hit": 1,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "275487": {
+      "playerId": 275487,
+      "matchId": "1417734",
+      "bat_runs": 40,
+      "balls_faced": 38,
+      "six_hit": 1,
+      "four_hit": 5,
+      "is_bat": true,
+      "is_out": false,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "276997": {
+      "playerId": 276997,
+      "matchId": "1417734",
+      "bat_runs": 8,
+      "balls_faced": 8,
+      "six_hit": 0,
+      "four_hit": 1,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "372317": {
+      "playerId": 372317,
+      "matchId": "1417734",
+      "bat_runs": 0,
+      "balls_faced": 1,
+      "six_hit": 0,
+      "four_hit": 0,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "474308": {
+      "playerId": 474308,
+      "matchId": "1417734",
+      "bat_runs": 26,
+      "balls_faced": 23,
+      "six_hit": 2,
+      "four_hit": 2,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "515905": {
+      "playerId": 515905,
+      "matchId": "1417734",
+      "bat_runs": 10,
+      "balls_faced": 15,
+      "six_hit": 0,
+      "four_hit": 1,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "597806": {
+      "playerId": 597806,
+      "matchId": "1417734",
+      "bat_runs": 11,
+      "balls_faced": 13,
+      "six_hit": 0,
+      "four_hit": 2,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "597815": {
+      "playerId": 597815,
+      "matchId": "1417734",
+      "bat_runs": 1,
+      "balls_faced": 4,
+      "six_hit": 0,
+      "four_hit": 0,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "803971": {
+      "playerId": 803971,
+      "matchId": "1417734",
+      "bat_runs": 2,
+      "balls_faced": 5,
+      "six_hit": 0,
+      "four_hit": 0,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "883413": {
+      "playerId": 883413,
+      "matchId": "1417734",
+      "bat_runs": 6,
+      "balls_faced": 10,
+      "six_hit": 0,
+      "four_hit": 1,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "944373": {
+      "playerId": 944373,
+      "matchId": "1417734",
+      "bat_runs": 9,
+      "balls_faced": 9,
+      "six_hit": 0,
+      "four_hit": 2,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "960955": {
+      "playerId": 960955,
+      "matchId": "1417734",
+      "bat_runs": 30,
+      "balls_faced": 21,
+      "six_hit": 1,
+      "four_hit": 5,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "961005": {
+      "playerId": 961005,
+      "matchId": "1417734",
+      "bat_runs": 4,
+      "balls_faced": 7,
+      "six_hit": 0,
+      "four_hit": 0,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "1212830": {
+      "playerId": 1212830,
+      "matchId": "1417734",
+      "bat_runs": 36,
+      "balls_faced": 28,
+      "six_hit": 2,
+      "four_hit": 4,
+      "is_bat": true,
+      "is_out": false,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "1255411": {
+      "playerId": 1255411,
+      "matchId": "1417734",
+      "bat_runs": 4,
+      "balls_faced": 2,
+      "six_hit": 0,
+      "four_hit": 1,
+      "is_bat": true,
+      "is_out": true,
+      "hundred": 0,
+      "fifty": 0
+    },
+    "1255564": {
+      "playerId": 1255564,
+      "matchId": "1417734",
+      "bat_runs": 19,
+      "balls_faced": 18,
+      "six_hit": 0,
+      "four_hit": 2,
+      "is_bat": true,
+      "is_out": false,
+      "hundred": 0,
+      "fifty": 0
+    }
+  },
+  "bowling": {
+    "231740": {
+      "balls_bowled": 18,
+      "dot_balls": 11,
+      "four_given": 3,
+      "maidian_over": 0,
+      "runs_given": 21,
+      "six_given": 1,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 231740
+    },
+    "275487": {
+      "balls_bowled": 24,
+      "dot_balls": 18,
+      "four_given": 3,
+      "maidian_over": 0,
+      "runs_given": 15,
+      "six_given": 0,
+      "wicket": 6,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 275487
+    },
+    "276997": {
+      "balls_bowled": 24,
+      "dot_balls": 18,
+      "four_given": 2,
+      "maidian_over": 0,
+      "runs_given": 19,
+      "six_given": 0,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 276997
+    },
+    "474308": {
+      "balls_bowled": 12,
+      "dot_balls": 9,
+      "four_given": 2,
+      "maidian_over": 0,
+      "runs_given": 11,
+      "six_given": 0,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 474308
+    },
+    "515905": {
+      "balls_bowled": 12,
+      "dot_balls": 5,
+      "four_given": 2,
+      "maidian_over": 0,
+      "runs_given": 18,
+      "six_given": 1,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 515905
+    },
+    "550687": {
+      "balls_bowled": 12,
+      "dot_balls": 4,
+      "four_given": 1,
+      "maidian_over": 0,
+      "runs_given": 12,
+      "six_given": 0,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 550687
+    },
+    "597815": {
+      "balls_bowled": 12,
+      "dot_balls": 5,
+      "four_given": 3,
+      "maidian_over": 0,
+      "runs_given": 24,
+      "six_given": 1,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 597815
+    },
+    "803971": {
+      "balls_bowled": 12,
+      "dot_balls": 5,
+      "four_given": 2,
+      "maidian_over": 0,
+      "runs_given": 13,
+      "six_given": 0,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 803971
+    },
+    "883413": {
+      "balls_bowled": 18,
+      "dot_balls": 8,
+      "four_given": 3,
+      "maidian_over": 0,
+      "runs_given": 26,
+      "six_given": 1,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 883413
+    },
+    "944373": {
+      "balls_bowled": 24,
+      "dot_balls": 10,
+      "four_given": 4,
+      "maidian_over": 0,
+      "runs_given": 26,
+      "six_given": 0,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 944373
+    },
+    "946057": {
+      "balls_bowled": 12,
+      "dot_balls": 4,
+      "four_given": 0,
+      "maidian_over": 0,
+      "runs_given": 8,
+      "six_given": 0,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 946057
+    },
+    "960853": {
+      "balls_bowled": 12,
+      "dot_balls": 8,
+      "four_given": 2,
+      "maidian_over": 0,
+      "runs_given": 16,
+      "six_given": 1,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 960853
+    },
+    "1255517": {
+      "balls_bowled": 6,
+      "dot_balls": 3,
+      "four_given": 0,
+      "maidian_over": 0,
+      "runs_given": 9,
+      "six_given": 1,
+      "wicket": 0,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 1255517
+    },
+    "1289948": {
+      "balls_bowled": 6,
+      "dot_balls": 4,
+      "four_given": 0,
+      "maidian_over": 0,
+      "runs_given": 3,
+      "six_given": 0,
+      "wicket": 1,
+      "is_ball": true,
+      "match_id": "1417734",
+      "player_id": 1289948
+    }
+  },
+  "fielding": {
+    "231740": {
+      "playerId": 231740,
+      "matchId": "1417734",
+      "catches": 1,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "275487": {
+      "playerId": 275487,
+      "matchId": "1417734",
+      "catches": 1,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "276997": {
+      "playerId": 276997,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "372317": {
+      "playerId": 372317,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "474308": {
+      "playerId": 474308,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "515905": {
+      "playerId": 515905,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "550687": {
+      "playerId": 550687,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "597806": {
+      "playerId": 597806,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "597815": {
+      "playerId": 597815,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "803971": {
+      "playerId": 803971,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "883413": {
+      "playerId": 883413,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "944373": {
+      "playerId": 944373,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "946057": {
+      "playerId": 946057,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "960853": {
+      "playerId": 960853,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "960955": {
+      "playerId": 960955,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "961005": {
+      "playerId": 961005,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "961183": {
+      "playerId": 961183,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "1212830": {
+      "playerId": 1212830,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "1255411": {
+      "playerId": 1255411,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "1255517": {
+      "playerId": 1255517,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "1255564": {
+      "playerId": 1255564,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    },
+    "1289948": {
+      "playerId": 1289948,
+      "matchId": "1417734",
+      "catches": 0,
+      "runouts": 0,
+      "stumping": 0
+    }
+  }
+}
