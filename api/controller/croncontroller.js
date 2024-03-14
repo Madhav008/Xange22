@@ -43,10 +43,12 @@ const seedPlayers = async (req, res) => {
 
 const seedPlayersStats = async (req, res) => {
     try {
-        const matchesData = await RecentMatches.find({});
+        const matchesData = await RecentMatches.find();
 
         for (const match of matchesData) {
             const existingMatchStats = await PlayerPerformance.findOne({ match_id: match.matchkey });
+            const playerInfos = await PlayerStats.find({ matchkey: match.matchkey });
+
             if (!existingMatchStats) {
                 const data = await getAllPlayerStats(match.matchkey);
                 if (data && data.data.length > 0) {
@@ -108,9 +110,26 @@ const seedPlayersStats = async (req, res) => {
                                 total_points.score = 0;
                             }
                         });
+                        let playerid;
+
+                        for (const pinfo of playerInfos) {
+                            if (pinfo && pinfo.name && playerData && playerData.Player_name) {
+                                if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
+                                    playerid = pinfo.playerkey;
+                                    console.log("Player ID found:", playerid);
+                                    break;
+                                }
+                            } else {
+                                console.log("Skipping iteration due to missing or undefined data:");
+                                console.log("pinfo:", pinfo);
+                                console.log("playerData:", playerData);
+                            }
+                        }
+
+
 
                         const seed_player_stat = {
-                            player_id: playerData.playerid,
+                            player_id: playerid,
                             match_id: match.matchkey,
                             batting_performance: batting_performance,
                             bowling_performance: bowling_performance,
@@ -251,7 +270,7 @@ async function getPlayersData(matchkey) {
 // Function to run and store data
 async function runAndStoreData() {
     try {
-        const matchesData = await RecentMatches.find();
+        const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;

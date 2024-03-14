@@ -2,7 +2,8 @@ const OrderBook = require("../models/OrderBook");
 const Orders = require("../models/Orders");
 const { Wallet } = require("../models/Wallet");
 const RecentMatches = require('../models/Matches');
-const PlayerStats = require('../models/PlayerStats')
+const PlayerStats = require('../models/PlayerStats');
+const PlayerPerformance = require("../models/Performance");
 
 const createOrder = async (req, res) => {
     const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
@@ -64,7 +65,59 @@ const createOrder = async (req, res) => {
 };
 
 
+const updateOrderProfit = async (matchId, userId) => {
+    try {
+        // Step 1: Get the orders by matches
+        const orders = await Orders.find({ matchId: matchId, user: userId });
 
+        // Step 2: Get the players in the orders
+        const playerIds = orders.map(order => order.playerId);
+        const uniquePlayerIds = [...new Set(playerIds)];
+
+        // Step 3: Get the points of these players
+        const playerPointsMap = {};
+        for (const playerId of uniquePlayerIds) {
+            const playerStats = await PlayerPerformance.findOne({ player_id: playerId, match_id: matchId });
+            if (playerStats) {
+                playerPointsMap[playerId] = playerStats.total_points.point;
+            }
+        }
+
+        // Step 4: Update the profit of these players inside the order
+        for (const order of orders) {
+            const playerId = order.playerId;
+            const points = playerPointsMap[playerId] || 0;
+            const profit = calculateProfit(order, points);
+            order.profit = profit;
+            order.player_point = points;
+            await order.save();
+        }
+
+        console.log("Order profit updated successfully");
+    } catch (error) {
+        console.error("Error updating order profit:", error);
+    }
+};
+
+// Function to calculate profit based on order and player points
+const calculateProfit = (order, points) => {
+    if (order.price <= points) {
+        // If the order price is less than or equal to the player points, return points
+        return points;
+    } else if (order.price * 2 >= points) {
+        // If the order price is less than or equal to double the player points, return points
+        return points;
+    } else {
+        // Otherwise, calculate profit based on the difference between order price and player points
+        let difference = order.price - points;
+        // Limit the difference to twice the order price
+        difference = Math.min(difference, order.price * 2);
+        return difference;
+    }
+};
+
+
+// Call the function to update order profit
 
 
 const getUserOrders = async (req, res) => {
@@ -76,6 +129,7 @@ const getUserOrders = async (req, res) => {
         const matches = {};
 
         for (const matchId of uniqueMatchIds) {
+            await updateOrderProfit(matchId, userId);
             const match = await RecentMatches.findOne({ matchkey: matchId });
             const matchOrders = orders.filter(order => order.matchId === matchId);
             const playersMap = {};

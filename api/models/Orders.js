@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
     teamId: String,
     fees: Number,
     is_filled: Boolean,
+    player_point: { type: Number, default: 0 },
     profit: { type: Number, default: 0.0 }
 });
 
