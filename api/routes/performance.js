@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { getMatchData } = require('../../espn_api/CronRecentData');
-const parseAllPlayersStats = require('../controller/performanceController');
+const performanceController = require('../controller/performanceController');
+const { protect } = require('../midleware/authmiddlware');
 
 // Example protected API route
 // router.get('/players', apiController.SeedPlayerPerformance);
 // router.get('/:playerId', apiController.PerformanceRoute);
-// router.get('/latest/:playerId', apiController.LatestPerformance);
+router.get('/match/:matchkey', protect, performanceController.getMatchPerformance);
 
 // Route to calculate player points
 router.get('/calculate', async (req, res) => {
@@ -48,7 +49,7 @@ router.get('/calculate', async (req, res) => {
                 }
             } */
 
-        const totalPoints = await parseAllPlayersStats(matchdata);
+        const totalPoints = await performanceController.parseAllPlayersStats(matchdata);
 
         res.json({ totalPoints });
     } catch (error) {

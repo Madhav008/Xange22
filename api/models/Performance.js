@@ -1,29 +1,30 @@
 const mongoose = require('mongoose');
 
+
+//Define the points-score schecma
+const PointScoreSchema = new mongoose.Schema({
+    score: { type: Number, required: true, default: 0 },
+    point: { type: Number, required: true, default: 0 },
+})
 // Define batting performance schema
 const BattingPerformanceSchema = new mongoose.Schema({
-    runs_scored: { type: Number, required: true },
-    boundaries_scored: { type: Number, required: true },
-    sixes_scored: { type: Number, required: true },
-    half_century: { type: Boolean, required: true },
-    century: { type: Boolean, required: true }
+    runs_scored: { type: PointScoreSchema, required: true },
+    boundaries_scored: { type: PointScoreSchema, required: true },
+    sixes_scored: { type: PointScoreSchema, required: true }
 });
 
 // Define bowling performance schema
 const BowlingPerformanceSchema = new mongoose.Schema({
-    wickets_taken: { type: Number, required: true },
-    maiden_overs_bowled: { type: Number, required: true },
-    three_wicket_haul: { type: Boolean, required: true },
-    four_wicket_haul: { type: Boolean, required: true },
-    five_wicket_haul: { type: Boolean, required: true }
+    wickets_taken: { type: PointScoreSchema, required: true },
+    maiden_overs_bowled: { type: PointScoreSchema, required: true },
 });
 
 // Define fielding performance schema
 const FieldingPerformanceSchema = new mongoose.Schema({
-    catches_taken: { type: Number, required: true },
-    run_outs_as_thrower: { type: Number, required: true },
-    run_outs_as_catcher: { type: Number, required: true },
-    stumpings: { type: Number, required: true }
+    catches_taken: { type: PointScoreSchema, required: true },
+    run_outs_as_thrower: { type: PointScoreSchema, required: true },
+    run_outs_as_catcher: { type: PointScoreSchema, required: true },
+    stumpings: { type: PointScoreSchema, required: true }
 });
 
 // Define player performance schema
@@ -33,8 +34,12 @@ const PlayerPerformanceSchema = new mongoose.Schema({
     batting_performance: { type: BattingPerformanceSchema, required: true },
     bowling_performance: { type: BowlingPerformanceSchema, required: true },
     fielding_performance: { type: FieldingPerformanceSchema, required: true },
-    total_points: { type: Number, required: true },
+    total_points: { type: PointScoreSchema, required: true },
     match_format: { type: String, required: true },
+    player_name: String,
+    role: String,
+    playerimage: String,
+    team: String,
 });
 
 // Create model for player performance

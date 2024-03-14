@@ -1,6 +1,7 @@
 const BattingPoints = require('../models/BattingPoints');
 const BowlingPoints = require('../models/BowlingPoints');
 const FieldingPoints = require('../models/FieldingPoints');
+const PlayerPerformance = require('../models/Performance');
 
 const calculatePlayerPoints = async (playerPerformance) => {
     try {
@@ -137,4 +138,16 @@ async function parseAllPlayersStats(matchData) {
     return playerStatsArray;
 }
 
-module.exports = parseAllPlayersStats;
+async function getMatchPerformance(req, res) {
+    const { matchkey } = req.params;
+    console.log(matchkey)
+    try {
+        const matchPerformance = await PlayerPerformance.find({ match_id: matchkey });
+        res.status(200).json({ data: matchPerformance });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = { parseAllPlayersStats, getMatchPerformance };

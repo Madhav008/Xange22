@@ -8,6 +8,7 @@ const PlayerStatsSchema = new mongoose.Schema({
     buy_rate: String,
     sell_rate: String,
     playerkey: String,
+    id: String,
     matchkey: String,
     is_disable_buy: { type: Boolean, default: false }, // Updated default value to false
     is_disable_sell: { type: Boolean, default: false }, // Updated default value to false

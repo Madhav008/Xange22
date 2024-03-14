@@ -27,7 +27,8 @@ const orderSchema = new mongoose.Schema({
     matchId: String,
     teamId: String,
     fees: Number,
-    is_filled: Boolean
+    is_filled: Boolean,
+    profit: { type: Number, default: 0.0 }
 });
 
 const Orders = mongoose.model('Orders', orderSchema);
