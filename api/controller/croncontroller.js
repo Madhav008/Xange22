@@ -43,7 +43,7 @@ const seedPlayers = async (req, res) => {
 
 const seedPlayersStats = async (req, res) => {
     try {
-        const matchesData = await RecentMatches.find();
+        const matchesData = await RecentMatches.find({ status: 'started' });
 
         for (const match of matchesData) {
             const existingMatchStats = await PlayerPerformance.findOne({ match_id: match.matchkey });

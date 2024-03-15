@@ -9,11 +9,14 @@
     [*] Get the order 
     [*] Get the User Order
     [*] Get matches from espn and match it to the fanxange  
-    [] Get Players from espn and match it to the fanxange  
+    [*] Get Players from espn and match it to the fanxange  
     [*] Show the completed match points of each player at the end 
     [] Disable the matches when it goes live
     [] Disable the trade before the 30min
     [] Store the images
+    [] Add the SMPT
+    [] Add the forget options
+    
 
 #   Bugs
     [*] Match seeding not updating the live matches

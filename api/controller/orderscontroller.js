@@ -1,6 +1,6 @@
 const OrderBook = require("../models/OrderBook");
 const Orders = require("../models/Orders");
-const { Wallet } = require("../models/Wallet");
+const { Wallet, Transaction } = require("../models/Wallet");
 const RecentMatches = require('../models/Matches');
 const PlayerStats = require('../models/PlayerStats');
 const PlayerPerformance = require("../models/Performance");
@@ -92,7 +92,6 @@ const updateOrderProfit = async (matchId, userId) => {
             order.player_point = points;
             await order.save();
         }
-
         console.log("Order profit updated successfully");
     } catch (error) {
         console.error("Error updating order profit:", error);
@@ -101,30 +100,36 @@ const updateOrderProfit = async (matchId, userId) => {
 
 // Function to calculate profit based on order and player points
 const calculateProfit = (order, points) => {
-    if (order.price <= points) {
-        // If the order price is less than or equal to the player points, return points
-        return points;
-    } else if (order.price * 2 >= points) {
-        // If the order price is less than or equal to double the player points, return points
-        return points;
+
+    if (order.orderType == 'buy') {
+        if (order.price >= points) {
+            return 0;
+        } else if (order.price < points && order.price * 2 > points) {
+            return points - order.price;
+        } else {
+            return order.price * 2;
+        }
     } else {
-        // Otherwise, calculate profit based on the difference between order price and player points
-        let difference = order.price - points;
-        // Limit the difference to twice the order price
-        difference = Math.min(difference, order.price * 2);
-        return difference;
+        //Order price 40 points 10 profit (40-10)*2
+        if (order.price > points) {
+            return (order.price - points) * 2;
+            //Order price 40 points 
+        } else {
+            return 0;
+        }
     }
+
 };
 
 
-// Call the function to update order profit
+
 
 
 const getUserOrders = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const orders = await Orders.find({ user: userId });
+        const orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
         const uniqueMatchIds = Array.from(new Set(orders.map(order => order.matchId)));
         const matches = {};
 
@@ -166,58 +171,10 @@ const getUserOrders = async (req, res) => {
 
 
 
-
-const closeOrder = async (req, res) => {
-    const { orderId, walletId, currentPrice } = req.body;
-
-    try {
-        // Find the order to be closed
-        const order = await Orders.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        // Find the corresponding order book ID
-        const orderBookId = "650e99b298038f94a5da077d"; // Use the actual order book ID
-
-        // Remove the order from the order book
-        const orderBook = await OrderBook.findByIdAndUpdate(
-            orderBookId,
-            { $pull: { buyOrders: orderId, sellOrders: orderId } },
-            { new: true }
-        );
-
-        // Calculate earnings or losses
-        const earningOrLoss = calculateEarningOrLoss(order, currentPrice);
-
-        // Update the user's wallet based on the earnings or losses
-        const updatedWallet = await updateWallet(walletId, earningOrLoss);
-
-        // Update the order status to "Close"
-        order.orderStatus = "Close";
-        await order.save();
-
-        res.status(200).json({ message: 'Order closed successfully', earningOrLoss, updatedWallet });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: 'Failed to close order' });
-    }
-};
-function calculateEarningOrLoss(order, currentPrice) {
-    // Implement your logic to calculate earnings or losses based on the order details
-    // For example, you can calculate it using the difference between the current price and the order price
-    // Replace this logic with your actual calculation
-    // const currentPrice =  /* Fetch the current price */;
-
-
-    const earningOrLoss = (currentPrice - parseFloat(order.price).toFixed(2)) * order.qty;
-
-    return earningOrLoss + currentPrice * order.qty;
-}
-async function updateWallet(walletId, earningOrLoss) {
+async function updateWallet(userid, earningOrLoss) {
     try {
         // Fetch the user's wallet
-        const userWallet = await Wallet.findById(walletId);
+        const userWallet = await Wallet.findOne({ userid: userid });
 
         // Check if the user's wallet exists
         if (!userWallet) {
@@ -228,6 +185,15 @@ async function updateWallet(walletId, earningOrLoss) {
         userWallet.balance += earningOrLoss;
         await userWallet.save();
 
+        // Create a transaction record
+        const depositTransaction = await Transaction.create({
+            walletId: userWallet._id,
+            transactionId: `txn_${Date.now()}`,
+            amount: earningOrLoss,
+            type: 'credit',
+            description: 'Earned Profit',
+            transactionStatus: true, // Set initial status to false
+        });
         // Return the updated wallet
         return userWallet;
     } catch (error) {
@@ -236,7 +202,7 @@ async function updateWallet(walletId, earningOrLoss) {
     }
 }
 module.exports = {
-    createOrder, getUserOrders, closeOrder
+    createOrder, getUserOrders
 };
 
 

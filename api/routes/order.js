@@ -5,9 +5,7 @@ const { protect } = require('../midleware/authmiddlware');
 
 // Example protected API route
 router.post('/create', protect, apiController.createOrder);
-router.post('/close', protect, apiController.closeOrder);
 router.get('/:userId', protect, apiController.getUserOrders);
-//Todo Creae getCloseOrders of the user
 
 
 
