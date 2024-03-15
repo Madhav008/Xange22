@@ -43,7 +43,7 @@ const seedPlayers = async (req, res) => {
 
 const seedPlayersStats = async (req, res) => {
     try {
-        const matchesData = await RecentMatches.find({ status: 'started' });
+        const matchesData = await RecentMatches.find({ status: 'completed' });
 
         for (const match of matchesData) {
             const existingMatchStats = await PlayerPerformance.findOne({ match_id: match.matchkey });
@@ -305,7 +305,7 @@ async function runAndStoreData() {
 
 
 
-async function login() {
+async function login(req, res) {
 
     const url = 'https://api.exchange22.com/api/loginuser';
     const headers = {
@@ -338,14 +338,16 @@ async function login() {
     };
 
     try {
-        const res = await axios.post(url, data, { headers })
-        const token = res.data.data.token;
+        const resp = await axios.post(url, data, { headers })
+        const token = resp.data.data.token;
         const jsonContent = JSON.stringify({ token });
 
         fs.writeFileSync('token.json', jsonContent);
 
-        return token;
+        res.status(200).json({ token })
     } catch (error) {
         console.log(error);
+        res.status(500).json({ message: error.message })
+
     }
 }
