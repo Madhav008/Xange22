@@ -68,6 +68,9 @@ app.use("/wallet", wallet);
 const fees = require('./api/routes/fees');
 app.use('/fees', fees);
 
+const payment = require('./api/routes/payment')
+app.use('/payment', payment);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

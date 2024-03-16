@@ -88,7 +88,7 @@ const updateOrderProfit = async (matchId, userId) => {
             const playerId = order.playerId;
             const points = playerPointsMap[playerId] || 0;
             const profit = calculateProfit(order, points);
-            order.profit = profit;
+            order.profit = profit*order.qty;
             order.player_point = points;
             await order.save();
         }
