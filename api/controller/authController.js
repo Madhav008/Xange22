@@ -2,10 +2,10 @@ const { google } = require('googleapis');
 require('dotenv').config();
 const User = require('../models/User'); // Import the User model
 const jwt = require('jsonwebtoken');
-const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
 const { createWalletHelper } = require('./walletcontroller');
+const sendEmail = require('../../send_maiil');
 
 
 
@@ -186,17 +186,106 @@ const user = async (req, res) => {
       throw new Error('Not authorized, token failed')
     }
   }
-
-
-
 }
 
+let otpMap = new Map(); // Map to store OTPs temporarily
 
-module.exports = router;
+const forget = async (req, res) => {
+  const { email } = req.body;
+
+  // Generate random OTP
+  const randomOTP = Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+
+  // Store the OTP and its timestamp temporarily
+  const otpData = {
+    otp: randomOTP.toString(),
+    timestamp: Date.now()
+  };
+  otpMap.set(email, otpData);
+
+  // Send email with the OTP
+  try {
+    await sendEmail(email, otpData.otp);
+    console.log(otpData.otp);
+    res.status(200).json({ message: "OTP Sent Successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+}
+
+const verify = async (req, res) => {
+  const { email, otp } = req.body;
+
+  // Retrieve the OTP data from the map
+  const otpData = otpMap.get(email);
+
+  if (!otpData) {
+    return res.status(400).json({ message: "OTP not found or expired" });
+  }
+
+  // Check if OTP has expired (5 minutes)
+  const currentTime = Date.now();
+  if (currentTime - otpData.timestamp > 5 * 60 * 1000) { // 5 minutes in milliseconds
+    otpMap.delete(email); // Remove expired OTP
+    return res.status(400).json({ message: "OTP expired" });
+  }
+
+  if (otp === otpData.otp) {
+    res.status(200).json({ message: "OTP Verified Successfully" });
+  } else {
+    res.status(400).json({ message: "Invalid OTP" });
+  }
+}
+
+//Reset user pasword
+const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  console.log(req.body);
+  // Retrieve the OTP data from the map
+  const otpData = otpMap.get(email);
+
+  if (!otpData) {
+    return res.status(400).json({ message: "Session expired try again" });
+  }
+
+  // Check if OTP has expired (5 minutes)
+  const currentTime = Date.now();
+  if (currentTime - otpData.timestamp > 5 * 60 * 1000) { // 5 minutes in milliseconds
+    otpMap.delete(email); // Remove expired OTP
+    return res.status(400).json({ message: "Session expired try again" });
+  }
+
+  if (otp !== otpData.otp) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user's password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+
+    // Clear the OTP from the map after successful password reset
+    otpMap.delete(email);
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ message: "Failed to reset password" });
+  }
+}
+
 
 module.exports = {
   googleLogin,
   googleCallback,
   successEndpoint,
-  register, login, user
+  forget, verify, register, login, user, resetPassword
 };

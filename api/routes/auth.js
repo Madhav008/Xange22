@@ -12,6 +12,10 @@ router.get('/google/callback', authController.googleCallback)
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.get("/user", authController.user);
+router.post('/forget', authController.forget);
+router.post('/verify', authController.verify);
+router.post('/reset', authController.resetPassword);
+
 
 
 router.get('/logout', function (req, res) {
