@@ -100,25 +100,40 @@ const successEndpoint = (async (req, res) => {
   }
 });
 
-//Regiuseter
 const register = async (req, res) => {
   try {
-    // Check if user with the provided email already exists
-    const existingUser = await User.findOne({ email: req.body.email });
+    // Check if required fields are provided
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Please provide username, email, and password' });
+    }
 
+    // Check email format correctness
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Check password strength
+    const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long and contain at least one special character' });
+    }
+
+    // Check if the provided email is already registered
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      // User with the provided email already exists
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     // Generate password hash
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create a new user
     const user = new User({
-      displayName: req.body.username,
-      email: req.body.email,
+      displayName: username,
+      email,
       password: hashedPassword,
     });
 
@@ -137,6 +152,7 @@ const register = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
 
 
 //lOGIN USER
@@ -192,6 +208,10 @@ let otpMap = new Map(); // Map to store OTPs temporarily
 
 const forget = async (req, res) => {
   const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
   // Generate random OTP
   const randomOTP = Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
