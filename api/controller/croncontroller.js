@@ -37,19 +37,26 @@ const seedMatches = async (req, res) => {
 
 const seedPlayers = async (req, res) => {
     // Handle the protected API route logic
-    await runAndStoreData();
-    res.json({ message: "SEEDED ALL THE PLAYERS" });
+    try {
+        await runAndStoreData();
+        res.json({ message: "SEEDED ALL THE PLAYERS" });
+
+    } catch (error) {
+        res.json({ message: error.message });
+
+    }
+
 };
 
 const seedPlayersStats = async (req, res) => {
     try {
-        const matchesData = await RecentMatches.find({ status: 'completed' });
+        const matchesData = await RecentMatches.find({ status: { $ne: 'notstarted' } });
 
         for (const match of matchesData) {
             const existingMatchStats = await PlayerPerformance.findOne({ match_id: match.matchkey });
             const playerInfos = await PlayerStats.find({ matchkey: match.matchkey });
 
-            if (!existingMatchStats) {
+            if (existingMatchStats && match.status == 'started') {
                 const data = await getAllPlayerStats(match.matchkey);
                 if (data && data.data.length > 0) {
                     for (const playerData of data.data) {
@@ -149,11 +156,108 @@ const seedPlayersStats = async (req, res) => {
                     console.log("No player data found for match", match.matchkey);
                 }
             } else {
-                console.log("Match stats already exist for match", match.matchkey);
+                const data = await getAllPlayerStats(match.matchkey);
+                if (data && data.data.length > 0) {
+                    for (const playerData of data.data) {
+                        let batting_performance = {
+                            runs_scored: { point: 0, score: 0 },
+                            boundaries_scored: { point: 0, score: 0 },
+                            sixes_scored: { point: 0, score: 0 }
+                        };
+
+                        let bowling_performance = {
+                            wickets_taken: { point: 0, score: 0 },
+                            maiden_overs_bowled: { point: 0, score: 0 }
+                        };
+
+                        let fielding_performance = {
+                            catches_taken: { point: 0, score: 0 },
+                            run_outs_as_thrower: { point: 0, score: 0 },
+                            run_outs_as_catcher: { point: 0, score: 0 },
+                            stumpings: { point: 0, score: 0 }
+                        };
+
+                        let total_points = {
+                            point: 0,
+                            score: 0
+                        }
+
+                        playerData.breakup_points.forEach(point => {
+                            if (point.Name === "Runs") {
+                                batting_performance.runs_scored.point = parseInt(point.Point);
+                                batting_performance.runs_scored.score = parseInt(point.Score);
+                            } else if (point.Name === "Fours" || point.Name === "Sixes") {
+                                batting_performance.boundaries_scored.point += parseInt(point.Point);
+                                batting_performance.boundaries_scored.score += parseInt(point.Score);
+                                if (point.Name === "Sixes") {
+                                    batting_performance.sixes_scored.point = parseInt(point.Point);
+                                    batting_performance.sixes_scored.score = parseInt(point.Score);
+                                }
+                            } else if (point.Name === "Wickets") {
+                                bowling_performance.wickets_taken.point = parseInt(point.Point);
+                                bowling_performance.wickets_taken.score = parseInt(point.Score);
+                            } else if (point.Name === "Maidens") {
+                                bowling_performance.maiden_overs_bowled.point = parseInt(point.Point);
+                                bowling_performance.maiden_overs_bowled.score = parseInt(point.Score);
+                            } else if (point.Name === "Catch Taken") {
+                                fielding_performance.catches_taken.point = parseInt(point.Point);
+                                fielding_performance.catches_taken.score = parseInt(point.Score);
+                            } else if (point.Name === "Runout Thrower") {
+                                fielding_performance.run_outs_as_thrower.point = parseInt(point.Point);
+                                fielding_performance.run_outs_as_thrower.score = parseInt(point.Score);
+                            } else if (point.Name === "Runout Catcher") {
+                                fielding_performance.run_outs_as_catcher.point = parseInt(point.Point);
+                                fielding_performance.run_outs_as_catcher.score = parseInt(point.Score);
+                            } else if (point.Name === "Stumping") {
+                                fielding_performance.stumpings.point = parseInt(point.Point);
+                                fielding_performance.stumpings.score = parseInt(point.Score);
+                            } else if (point.Name === "Total") {
+                                total_points.point = parseInt(point.Point);
+                                total_points.score = 0;
+                            }
+                        });
+                        let playerid;
+
+                        for (const pinfo of playerInfos) {
+                            if (pinfo && pinfo.name && playerData && playerData.Player_name) {
+                                if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
+                                    playerid = pinfo.playerkey;
+                                    console.log("Player ID found:", playerid);
+                                    break;
+                                }
+                            } else {
+                                console.log("Skipping iteration due to missing or undefined data:");
+                                console.log("pinfo:", pinfo);
+                                console.log("playerData:", playerData);
+                            }
+                        }
+
+
+
+                        const seed_player_stat = {
+                            player_id: playerid,
+                            match_id: match.matchkey,
+                            batting_performance: batting_performance,
+                            bowling_performance: bowling_performance,
+                            fielding_performance: fielding_performance,
+                            total_points: total_points,
+                            match_format: match.format,
+                            player_name: playerData.Player_name,
+                            role: playerData.role,
+                            playerimage: playerData.playerimage,
+                            team: playerData.team,
+                        };
+
+                        const player_performance = new PlayerPerformance(seed_player_stat);
+                        await player_performance.save();
+                    }
+                } else {
+                    console.log("No player data found for match", match.matchkey);
+                }
             }
         }
 
-        res.json({ message: 'SEEDED ALL THE MATCHES' });
+        res.json({ message: 'SEEDED ALL THE Palyers Stats' });
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -279,7 +383,7 @@ async function runAndStoreData() {
             if (matchId) {
                 // Get players data
                 const playersData = await getPlayersData(matchId);
-                console.log(playersData);
+                // console.log(playersData);
                 // return
                 if (playersData && playersData.data) {
                     // Store or update players data in MongoDB
@@ -291,7 +395,7 @@ async function runAndStoreData() {
                         );
 
                         // Log the updated or newly created player
-                        console.log(existingPlayer);
+                        // console.log(existingPlayer);
                     }
                 }
             }

@@ -33,7 +33,7 @@ const createPayment = async (req, res) => {
         "order_currency": "INR",
         "order_id": transactionId,
         "customer_details": {
-            "customer_id": userid,'customer_phone':'1234567890'
+            "customer_id": userid, 'customer_phone': '1234567890'
         },
         "order_meta": {
             "return_url": "https://www.cashfree.com/devstudio/preview/pg/mobile/hybrid?order_id={order_id}"
@@ -49,4 +49,15 @@ const createPayment = async (req, res) => {
     }
 }
 
-module.exports = createPayment;
+const verifyPayment = async (req, res) => {
+    const { orderId } = req.params;
+    try {
+        const response = await Cashfree.PGFetchOrder("2023-08-01", orderId);
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.response.data.message });
+    }
+}
+
+module.exports = { createPayment, verifyPayment };
