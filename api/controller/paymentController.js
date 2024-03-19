@@ -1,9 +1,9 @@
 const { Cashfree } = require('cashfree-pg');
 
 // Set Cashfree configuration
-Cashfree.XClientId = "TEST430329ae80e0f32e41a393d78b923034";
-Cashfree.XClientSecret = "TESTaf195616268bd6202eeb3bf8dc458956e7192a85";
-Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+Cashfree.XClientId = "65195559b737f77b10e3871f83559156";
+Cashfree.XClientSecret = "cfsk_ma_prod_7073fb61abe9ae558404635fb54b1bb7_565e6c2c";
+Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION;
 
 // Function to generate a random string
 function generateRandomString(length) {
