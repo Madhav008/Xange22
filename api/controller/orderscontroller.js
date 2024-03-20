@@ -107,10 +107,10 @@ const calculateProfit = (order, points) => {
         } else if (order.price < points && order.price * 2 > points) {
             return points - order.price;
         } else {
-            return order.price * 2;
+            return order.price;
         }
     } else {
-        //Order price 40 points 10 profit (40-10)*2
+        //Order price 40 points 10 profit (40-10)
         if (order.price > points) {
             return (order.price - points);
             //Order price 40 points 
