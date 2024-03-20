@@ -372,8 +372,8 @@ async function getPlayersData(matchkey) {
 // Function to run and store data
 async function runAndStoreData() {
     try {
-        const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
-        // const matchesData = await RecentMatches.find();
+         const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
+         // const matchesData = await RecentMatches.find();
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;
