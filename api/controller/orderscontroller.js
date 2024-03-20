@@ -87,8 +87,8 @@ const updateOrderProfit = async (matchId, userId) => {
         for (const order of orders) {
             const playerId = order.playerId;
             const points = playerPointsMap[playerId] || 0;
-            const profit = calculateProfit(order, points);
-            order.profit = profit*order.qty;
+            const profit = calculateProfit(order, points) + order.price;
+            order.profit = profit * order.qty;
             order.player_point = points;
             await order.save();
         }
@@ -112,7 +112,7 @@ const calculateProfit = (order, points) => {
     } else {
         //Order price 40 points 10 profit (40-10)*2
         if (order.price > points) {
-            return (order.price - points) * 2;
+            return (order.price - points);
             //Order price 40 points 
         } else {
             return 0;
