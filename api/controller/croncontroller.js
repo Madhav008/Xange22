@@ -54,9 +54,17 @@ const seedPlayersStats = async (req, res) => {
 
         for (const match of matchesData) {
             const existingMatchStats = await PlayerPerformance.findOne({ match_id: match.matchkey });
+
+            // If match is already seeded, move to the next match
+            if (existingMatchStats && existingMatchStats.isSeeded) {
+                console.log("Skipping as Match Completed and All Players Stats Updated");
+                continue;
+            }
+
             const playerInfos = await PlayerStats.find({ matchkey: match.matchkey });
 
-            if (existingMatchStats && match.status == 'started') {
+            if (existingMatchStats) {
+                console.log("Updating the player stats ")
                 const data = await getAllPlayerStats(match.matchkey);
                 if (data && data.data.length > 0) {
                     for (const playerData of data.data) {
@@ -120,43 +128,40 @@ const seedPlayersStats = async (req, res) => {
                         let playerid;
 
                         for (const pinfo of playerInfos) {
-                            if (pinfo && pinfo.name && playerData && playerData.Player_name) {
-                                if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
-                                    playerid = pinfo.playerkey;
-                                    console.log("Player ID found:", playerid);
-                                    break;
-                                }
+                            if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
+                                playerid = pinfo.playerkey;
+                                console.log("Player ID found:", playerid);
+                                break;
                             } else {
-                                console.log("Skipping iteration due to missing or undefined data:");
-                                console.log("pinfo:", pinfo);
-                                console.log("playerData:", playerData);
+                                console.log("Player Not Found")
                             }
                         }
 
+                        if (playerid) {
+                            const existingPerformance = await PlayerPerformance.findOne({ player_id: playerid, match_id: match.matchkey });
 
+                            if (existingPerformance) {
+                                // Update existing performance
+                                existingPerformance.player_id = existingPerformance.player_id;
+                                existingPerformance.batting_performance = batting_performance;
+                                existingPerformance.bowling_performance = bowling_performance;
+                                existingPerformance.fielding_performance = fielding_performance;
+                                existingPerformance.total_points = total_points;
+                                existingPerformance.match_format = match.format;
+                                existingPerformance.player_name = playerData.Player_name;
+                                existingPerformance.role = playerData.role;
+                                existingPerformance.playerimage = playerData.playerimage;
+                                existingPerformance.team = playerData.team;
+                                existingPerformance.isSeeded = match.status === 'completed';
 
-                        const seed_player_stat = {
-                            player_id: playerid,
-                            match_id: match.matchkey,
-                            batting_performance: batting_performance,
-                            bowling_performance: bowling_performance,
-                            fielding_performance: fielding_performance,
-                            total_points: total_points,
-                            match_format: match.format,
-                            player_name: playerData.Player_name,
-                            role: playerData.role,
-                            playerimage: playerData.playerimage,
-                            team: playerData.team,
-                        };
-
-                        const player_performance = new PlayerPerformance(seed_player_stat);
-                        await player_performance.save();
+                                await existingPerformance.save();
+                            }
+                        }
                     }
-                } else {
-                    console.log("No player data found for match", match.matchkey);
                 }
             } else {
                 const data = await getAllPlayerStats(match.matchkey);
+
                 if (data && data.data.length > 0) {
                     for (const playerData of data.data) {
                         let batting_performance = {
@@ -217,18 +222,11 @@ const seedPlayersStats = async (req, res) => {
                             }
                         });
                         let playerid;
-
                         for (const pinfo of playerInfos) {
-                            if (pinfo && pinfo.name && playerData && playerData.Player_name) {
-                                if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
-                                    playerid = pinfo.playerkey;
-                                    console.log("Player ID found:", playerid);
-                                    break;
-                                }
-                            } else {
-                                console.log("Skipping iteration due to missing or undefined data:");
-                                console.log("pinfo:", pinfo);
-                                console.log("playerData:", playerData);
+                            if (pinfo.name.trim().toLowerCase() === playerData.Player_name.trim().toLowerCase()) {
+                                playerid = pinfo.playerkey;
+                                console.log("Player ID found:", playerid);
+                                break;
                             }
                         }
 
@@ -259,7 +257,7 @@ const seedPlayersStats = async (req, res) => {
 
         res.json({ message: 'SEEDED ALL THE Palyers Stats' });
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -375,6 +373,7 @@ async function getPlayersData(matchkey) {
 async function runAndStoreData() {
     try {
         const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
+        // const matchesData = await RecentMatches.find();
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;

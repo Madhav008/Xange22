@@ -39,6 +39,7 @@ const PlayerPerformanceSchema = new mongoose.Schema({
     player_name: String,
     role: String,
     playerimage: String,
+    isSeeded: { type: Boolean, default: false },
     team: String,
 });
 
