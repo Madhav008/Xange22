@@ -6,7 +6,8 @@ const paymentController = require('../controller/paymentController');
 
 // Example protected API route
 router.post('/create', protect, paymentController.createPayment);
-router.get('/verify/:orderId', protect, paymentController.verifyPayment);
+router.post('/success', protect, paymentController.succesPayment);
+
 
 
 module.exports = router;

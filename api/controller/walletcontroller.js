@@ -71,28 +71,26 @@ const getwallet = async (req, res) => {
 };
 
 // Controller function to deposit funds
-const deposit = async (req, res) => {
+const deposit = async (userid, amount, transactionId) => {
     try {
-        // Extract user ID and amount from request body
-        const { userid, amount } = req.body;
 
         // Validate that userid and amount are provided
         if (!userid || !amount) {
-            return res.status(400).json({ error: 'User ID and amount are required.' });
+            return { error: 'User ID and amount are required.' };
         }
 
 
         // Check if the amount is a positive number
         const parsedAmount = parseFloat(amount);
         if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            return res.status(400).json({ error: 'Amount must be a positive number.' });
+            return { error: 'Amount must be a positive number.' };
         }
 
         // Find the wallet for the specified user
         const userWallet = await Wallet.findOne({ userid });
 
         if (!userWallet) {
-            return res.status(404).json({ error: 'Wallet not found for the user.' });
+            return { error: 'Wallet not found for the user.' };
         }
         const roundedAmount = parseFloat(parsedAmount.toFixed(2));
 
@@ -103,17 +101,17 @@ const deposit = async (req, res) => {
         // Create a transaction record
         const depositTransaction = await Transaction.create({
             walletId: userWallet._id,
-            transactionId: `txn_${Date.now()}`,
+            transactionId: transactionId,
             amount: roundedAmount,
             type: 'credit',
             description: 'Deposit',
             transactionStatus: true, // Set initial status to false
         });
 
-        res.status(200).json({ balance: userWallet.balance, depositTransaction });
+        return { balance: userWallet.balance, depositTransaction };
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return { error: 'Internal Server Error' };
     }
 };
 

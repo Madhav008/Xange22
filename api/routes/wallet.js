@@ -7,7 +7,6 @@ const { protect } = require('../midleware/authmiddlware');
 router.post('/createwallet', apiController.createwallet);
 router.get('/getbalance/:userid', protect, apiController.getwallet);
 
-router.post('/deposit', protect, apiController.deposit);
 router.post('/withdraw', protect, apiController.withdraw);
 
 
