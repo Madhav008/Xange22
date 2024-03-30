@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.1.65:5173", "http://localhost:3000", "http://localhost:5125", "http://192.168.1.124:5125", "https://admin.fanxange.live", "https://fanxange.live", "http://fanxange.live"], // allow to server to accept request from different origin
+    origin: ["http://localhost:5173", "http://192.168.1.65:5173", "http://localhost:3000", "http://localhost:5125", "http://192.168.1.124:5125", "https://admin.fanxange.live", "http://admin.fanxange.live", "https://fanxange.live", "http://fanxange.live"], // allow to server to accept request from different origin
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true // allow session cookie from browser to pass through
   })
