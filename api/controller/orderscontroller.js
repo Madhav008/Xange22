@@ -4,6 +4,7 @@ const { Wallet, Transaction } = require("../models/Wallet");
 const RecentMatches = require('../models/Matches');
 const PlayerStats = require('../models/PlayerStats');
 const PlayerPerformance = require("../models/Performance");
+const User = require("../models/User");
 
 const createOrder = async (req, res) => {
     const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
@@ -175,7 +176,6 @@ const getUserOrders = async (req, res) => {
 
 const getMatchOrders = async (req, res) => {
     const { matchId } = req.params;
-    console.log(matchId)
 
     try {
         const orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
@@ -200,6 +200,39 @@ const getMatchOrders = async (req, res) => {
         }
 
         res.status(200).json(playersData);
+    } catch (error) {
+        console.error('Error fetching match orders:', error.message);
+        res.status(500).json({ message: "Error fetching match orders", error: error.message });
+    }
+};
+
+
+const matchOrderbyUser = async (req, res) => {
+    const { matchId } = req.params;
+
+    try {
+        const orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
+
+        const uniqueUserIds = new Set();
+        const userData = [];
+
+        for (const order of orders) {
+            const userId = order.user;
+            if (!uniqueUserIds.has(userId)) {
+                uniqueUserIds.add(userId);
+
+                const userInfo = await User.findById(userId);
+
+                const userOrders = orders.filter(o => o.user === userId);
+
+                userData.push({
+                    userInfo: userInfo,
+                    orders: userOrders
+                });
+            }
+        }
+
+        res.status(200).json(userData);
     } catch (error) {
         console.error('Error fetching match orders:', error.message);
         res.status(500).json({ message: "Error fetching match orders", error: error.message });
@@ -264,7 +297,7 @@ async function updateWallet(userid, earningOrLoss) {
     }
 }
 module.exports = {
-    createOrder, getUserOrders, getMatchOrders, getOrders
+    createOrder, getUserOrders, getMatchOrders, getOrders, matchOrderbyUser
 };
 
 

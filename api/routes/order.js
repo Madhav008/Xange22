@@ -8,6 +8,8 @@ router.post('/create', protect, apiController.createOrder);
 router.get('/:userId', protect, apiController.getUserOrders);
 router.post('/', admin, apiController.getOrders);
 router.get('/match/:matchId', admin, apiController.getMatchOrders);
+router.get('/matchOrderbyUser/:matchId', admin, apiController.matchOrderbyUser);
+
 
 
 
