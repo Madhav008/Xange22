@@ -172,77 +172,6 @@ const getUserOrders = async (req, res) => {
 
 
 
-
-const getMatchOrders = async (req, res) => {
-    const { matchId } = req.params;
-    console.log(matchId)
-
-    try {
-        const orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
-
-        const uniquePlayerIds = new Set();
-        const playersData = [];
-
-        for (const order of orders) {
-            const playerkey = order.playerId;
-            if (!uniquePlayerIds.has(playerkey)) {
-                uniquePlayerIds.add(playerkey);
-
-                const playerInfo = await PlayerStats.findOne({ playerkey, matchkey: matchId });
-
-                const playerOrders = orders.filter(o => o.playerId === playerkey);
-
-                playersData.push({
-                    playerInfo: playerInfo, // Directly use playerInfo here
-                    orders: playerOrders
-                });
-            }
-        }
-
-        res.status(200).json(playersData);
-    } catch (error) {
-        console.error('Error fetching match orders:', error.message);
-        res.status(500).json({ message: "Error fetching match orders", error: error.message });
-    }
-};
-
-
-
-const getPlayerOrders = async (req, res) => {
-    const { matchId, playerId } = req.body;
-    try {
-        const orders = await Orders.find({ matchId: matchId, playerId: playerId }).sort({ timestamp: 1 });
-        res.status(200).json(orders);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: "Error fetching orders" });
-    }
-};
-const getOrders = async (req, res) => {
-    try {
-        const orders = await Orders.find({}).sort({ timestamp: -1 }); // Fetch all orders
-        const uniqueMatchIds = new Set();
-        const matches = [];
-
-        for (let order of orders) {
-            if (!uniqueMatchIds.has(order.matchId)) {
-
-                const match = await RecentMatches.findOne({ matchkey: order.matchId });
-                if (match) {
-                    matches.push(match);
-                    uniqueMatchIds.add(order.matchId);
-                }
-            }
-        }
-        res.status(200).json(matches);
-    } catch (error) {
-        console.error('Error fetching orders:', error.message);
-        res.status(500).json({ message: "Error fetching orders", error: error.message });
-    }
-};
-
-
-
 async function updateWallet(userid, earningOrLoss) {
     try {
         // Fetch the user's wallet
@@ -274,7 +203,7 @@ async function updateWallet(userid, earningOrLoss) {
     }
 }
 module.exports = {
-    createOrder, getUserOrders, getMatchOrders, getPlayerOrders, getOrders
+    createOrder, getUserOrders
 };
 
 
