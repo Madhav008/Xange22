@@ -1,4 +1,3 @@
-const OrderBook = require("../models/OrderBook");
 const Orders = require("../models/Orders");
 const { Wallet, Transaction } = require("../models/Wallet");
 const RecentMatches = require('../models/Matches');
@@ -21,6 +20,7 @@ const createOrder = async (req, res) => {
             console.log("Insufficient balance to place the order")
             return res.status(400).json({ message: "Insufficient balance to place the order" });
         }
+        //Todo: need to add a transaction that player order is created
 
         // Update the wallet balance
         userWallet.balance -= amount;
@@ -34,30 +34,6 @@ const createOrder = async (req, res) => {
         // Save the order to the database
         await order.save();
 
-        const updateField = orderType === "buy" ? 'buyOrders' : orderType === "sell" ? 'sellOrders' : null;
-
-        if (updateField) {
-            try {
-                let orderBook = await OrderBook.findOne({ playerId: playerId });
-
-                if (!orderBook) {
-                    orderBook = await OrderBook.create({
-                        playerId: playerId,
-                        buyOrders: [],
-                        sellOrders: [],
-                    });
-                }
-
-                orderBook[updateField].push(order._id);
-                await orderBook.save();
-            } catch (error) {
-                console.log(error)
-                return res.status(500).json({ message: "Internal server error", error: error });
-            }
-        } else {
-            console.log("I am here")
-            return res.status(400).json({ message: "Invalid orderType" });
-        }
         res.status(200).json({ order, updatedWallet: userWallet });
     } catch (error) {
         console.error(error);
@@ -131,12 +107,13 @@ const getUserOrders = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
+        let orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
         const uniqueMatchIds = Array.from(new Set(orders.map(order => order.matchId)));
         const matches = {};
 
         for (const matchId of uniqueMatchIds) {
             await updateOrderProfit(matchId, userId);
+            orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
             const match = await RecentMatches.findOne({ matchkey: matchId });
             const matchOrders = orders.filter(order => order.matchId === matchId);
             const playersMap = {};
@@ -211,7 +188,7 @@ const matchOrderbyUser = async (req, res) => {
     const { matchId } = req.params;
 
     try {
-        const orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
+        let orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
 
         const uniqueUserIds = new Set();
         const userData = [];
@@ -220,7 +197,8 @@ const matchOrderbyUser = async (req, res) => {
             const userId = order.user;
             if (!uniqueUserIds.has(userId)) {
                 uniqueUserIds.add(userId);
-
+                await updateOrderProfit(matchId, userId);
+                orders = await Orders.find({ matchId: matchId }).sort({ timestamp: -1 });
                 const userInfo = await User.findById(userId);
 
                 const userOrders = orders.filter(o => o.user === userId);
