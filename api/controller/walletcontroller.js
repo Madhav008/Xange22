@@ -255,6 +255,43 @@ const getPendingWithdrawals = async (req, res) => {
     }
 };
 
+const updateWallet = async (req, res) => {
+    const { userId, earningOrLoss } = req.body
+    try {
+        // Fetch the user's wallet
+        const userWallet = await Wallet.findOne({ userid: userId });
+
+        // Check if the user's wallet exists
+        if (!userWallet) {
+            throw new Error("User's wallet not found");
+        }
+
+        // Update the wallet balance based on earnings or losses
+        userWallet.balance += earningOrLoss;
+        await userWallet.save();
+
+        try {
+            // Create a transaction record
+            const depositTransaction = await Transaction.create({
+                walletId: userWallet._id,
+                transactionId: `txn_${Date.now()}`,
+                amount: earningOrLoss,
+                type: 'credit',
+                description: 'Earned Profit',
+                transactionStatus: true, // Set initial status to false
+            });
+        } catch (error) {
+            console.log(error)
+        }
+        // Return the updated wallet
+        return userWallet;
+    } catch (error) {
+        // Handle errors here (e.g., log the error or throw a custom error)
+        console.log(error)
+        throw new Error(`Failed to update wallet: ${error.message}`);
+    }
+}
+
 module.exports = {
     createWalletHelper,
     createwallet,
@@ -265,5 +302,5 @@ module.exports = {
     getUserTransactions,
     updateTransaction,
     getPendingDeposits,
-    getPendingWithdrawals
+    getPendingWithdrawals, updateWallet
 };

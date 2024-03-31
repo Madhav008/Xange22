@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const apiController = require('../controller/walletcontroller');
-const { protect } = require('../midleware/authmiddlware');
+const { protect, admin } = require('../midleware/authmiddlware');
 
 // Example protected API route
 router.post('/createwallet', apiController.createwallet);
 router.get('/getbalance/:userid', protect, apiController.getwallet);
+router.post('/update', admin, apiController.updateWallet)
 
 router.post('/withdraw', protect, apiController.withdraw);
 
@@ -16,8 +17,8 @@ router.put('/updatetransaction/:transactionId', protect, apiController.updateTra
 
 
 // Example protected API routes for admin
-router.get('/getpendingdeposits', protect, apiController.getPendingDeposits);
-router.get('/getpendingwithdrawals', protect, apiController.getPendingWithdrawals);
+router.get('/getpendingdeposits', admin, apiController.getPendingDeposits);
+router.get('/getpendingwithdrawals', admin, apiController.getPendingWithdrawals);
 
 
 

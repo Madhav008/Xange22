@@ -4,7 +4,6 @@ const RecentMatches = require('../models/Matches');
 const PlayerStats = require('../models/PlayerStats');
 const PlayerPerformance = require("../models/Performance");
 const User = require("../models/User");
-const moment = require('moment');
 
 const createOrder = async (req, res) => {
     const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
@@ -106,11 +105,9 @@ const calculateProfit = (order, points) => {
 
 const getUserOrders = async (req, res) => {
     const { userId } = req.params;
-    const startOfLast30Days = moment().subtract(30, 'days').startOf('day').valueOf();
-    const currentTimestamp = moment().valueOf();
 
     try {
-        let orders = await Orders.find({ user: userId, timestamp: { $gte: startOfLast30Days, $lte: currentTimestamp } }).sort({ timestamp: 1 });
+        let orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
         const uniqueMatchIds = Array.from(new Set(orders.map(order => order.matchId)));
         const matches = {};
 
@@ -150,7 +147,6 @@ const getUserOrders = async (req, res) => {
         res.status(500).json({ message: "Error fetching orders" });
     }
 };
-
 
 
 
@@ -245,40 +241,27 @@ const getOrders = async (req, res) => {
     }
 };
 
-
-
-async function updateWallet(userid, earningOrLoss) {
+const updateIsPayout = async (req, res) => {
     try {
-        // Fetch the user's wallet
-        const userWallet = await Wallet.findOne({ userid: userid });
+        const orderId = req.params.orderId;
 
-        // Check if the user's wallet exists
-        if (!userWallet) {
-            throw new Error("User's wallet not found");
+        // Update the specified order to set isPayout to true
+        const updatedOrder = await Orders.findByIdAndUpdate(orderId, { isPayout: true }, { new: true });
+
+        if (!updatedOrder) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Update the wallet balance based on earnings or losses
-        userWallet.balance += earningOrLoss;
-        await userWallet.save();
-
-        // Create a transaction record
-        const depositTransaction = await Transaction.create({
-            walletId: userWallet._id,
-            transactionId: `txn_${Date.now()}`,
-            amount: earningOrLoss,
-            type: 'credit',
-            description: 'Earned Profit',
-            transactionStatus: true, // Set initial status to false
-        });
-        // Return the updated wallet
-        return userWallet;
+        res.status(200).json({ success: true, message: 'isPayout field updated successfully', order: updatedOrder });
     } catch (error) {
-        // Handle errors here (e.g., log the error or throw a custom error)
-        throw new Error(`Failed to update wallet: ${error.message}`);
+        console.error('Error occurred:', error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
-}
+};
+
+
 module.exports = {
-    createOrder, getUserOrders, getMatchOrders, getOrders, matchOrderbyUser
+    createOrder, getUserOrders, getMatchOrders, getOrders, matchOrderbyUser, updateIsPayout
 };
 
 
