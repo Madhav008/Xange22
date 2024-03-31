@@ -12,7 +12,7 @@ const seedMatches = async (req, res) => {
     try {
         const matchesData = await getAllMatchesData();
         for (const match of matchesData.data) {
-            const { matchkey, isSuccess, ...rest } = match; 
+            const { matchkey, success, ...rest } = match;
             const existingMatch = await RecentMatches.findOne({ matchkey: match.matchkey });
             if (!existingMatch) {
                 const newMatch = new RecentMatches(match);
@@ -368,8 +368,8 @@ async function getPlayersData(matchkey) {
 // Function to run and store data
 async function runAndStoreData() {
     try {
-         const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
-         // const matchesData = await RecentMatches.find();
+        const matchesData = await RecentMatches.find({ match_status: { $ne: 'completed' } });
+        // const matchesData = await RecentMatches.find();
 
         for (const match of matchesData || []) {
             const matchId = match.matchkey;
