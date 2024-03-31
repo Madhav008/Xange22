@@ -4,6 +4,7 @@ const RecentMatches = require('../models/Matches');
 const PlayerStats = require('../models/PlayerStats');
 const PlayerPerformance = require("../models/Performance");
 const User = require("../models/User");
+const moment = require('moment');
 
 const createOrder = async (req, res) => {
     const { price, amount, qty, timestamp, status, user, orderType, playerId, matchId, teamId } = req.body;
@@ -105,9 +106,11 @@ const calculateProfit = (order, points) => {
 
 const getUserOrders = async (req, res) => {
     const { userId } = req.params;
+    const startOfLast30Days = moment().subtract(30, 'days').startOf('day').valueOf();
+    const currentTimestamp = moment().valueOf();
 
     try {
-        let orders = await Orders.find({ user: userId }).sort({ timestamp: 1 });
+        let orders = await Orders.find({ user: userId, timestamp: { $gte: startOfLast30Days, $lte: currentTimestamp } }).sort({ timestamp: 1 });
         const uniqueMatchIds = Array.from(new Set(orders.map(order => order.matchId)));
         const matches = {};
 
