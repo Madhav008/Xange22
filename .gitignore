@@ -5,4 +5,4 @@ package-lock.json
 swagger-output.json
 token.json
 yarn.lock
-node_modules/.package-lock.json
+

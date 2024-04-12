@@ -42,10 +42,13 @@ Returns
 */
 
 async function getMatchData(seriesId, matchId) {
+    console.log(seriesId);
+    console.log(matchId);
     if (seriesId === undefined || matchId === undefined) {
         return;
     }
     const url = `https://hs-consumer-api.espncricinfo.com/v1/ui/match/details?latest=true&lang=en&seriesId=${seriesId}&matchId=${matchId}`;
+    console.log(url)
     const matchData = await getEspnData(url);
 
     let fieldingStats = new Map();
@@ -61,7 +64,9 @@ async function getMatchData(seriesId, matchId) {
                 "playerId": player.player.objectId,
                 "name": player.player.longName,
                 "shortName": player.player.name,
-                "teamId": team.team.objectId
+                "teamId": team.team.objectId,
+                "teamName": team.team.name,
+                "role": player.player.playingRoles[0]
             };
             teamPlayers.push(playerData);
 
@@ -75,7 +80,7 @@ async function getMatchData(seriesId, matchId) {
         });
     });
 
-    matchData.scorecard.innings.forEach(inning => {
+    matchData.scorecard?.innings.forEach(inning => {
         inning.inningBatsmen.forEach(batsman => {
             if (batsman.battedType === "yes" && batsman.runs !== null) {
                 let hundred = 0;

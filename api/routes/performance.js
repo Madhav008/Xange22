@@ -12,11 +12,11 @@ router.get('/match/:matchkey', protect, performanceController.getMatchPerformanc
 // Route to calculate player points
 router.get('/calculate', async (req, res) => {
     try {
-        // const { espn_seriesId, espn_matchId, matchId } = req.body; // Assuming the player performance data is sent in the request body
+        const { seriesId, matchId } = req.query; // Assuming the player performance data is sent in the request body
 
-
+        console.log(req.query);
         // Call getMatchData function and store the result in a variable
-        const matchdata = await getMatchData(1411373, 1417734);
+        const matchdata = await getMatchData(seriesId, matchId);
 
         // // Convert the data to JSON format
         // const jsonData = JSON.stringify(data, null, 2);
@@ -51,7 +51,8 @@ router.get('/calculate', async (req, res) => {
 
         const totalPoints = await performanceController.parseAllPlayersStats(matchdata);
 
-        res.json({ totalPoints });
+        // res.json({ totalPoints });
+        res.json(matchdata)
     } catch (error) {
         console.error('Error calculating player points:', error);
         res.status(500).json({ error: 'Internal server error' });
