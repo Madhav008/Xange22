@@ -8,6 +8,8 @@ const paymentController = require('../controller/cashfree');
 // Example protected API route
 router.post('/create', protect, paymentController.createPayment);
 router.post('/order/:orderId', paymentController.verifyPayment);
+router.post('/verify/order/:orderId', paymentController.checkPaymentStatus);
+
 
 
 
