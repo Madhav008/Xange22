@@ -4,13 +4,8 @@ const apiController = require('../controller/matchesController');
 const { protect, admin } = require('../midleware/authmiddlware');
 
 // Example protected API route
-router.get('/upcomming', protect, apiController.getUpcommingMacthes);
-router.get('/live', protect, apiController.getLiveMacthes);
-router.get('/result', protect, apiController.getFinishedMacthes);
-router.put('/updatematch/:matchId', admin, apiController.updateMatch);
-
-
-
-
+router.get('/list', protect, apiController.getUpcommingMacthes);
+router.get('/ipodetails/:iponame', protect, apiController.getMatchDetail);
+router.post('/ipodetails/:iponame', admin, apiController.updateMatch);
 
 module.exports = router;

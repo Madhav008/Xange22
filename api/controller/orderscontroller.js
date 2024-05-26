@@ -1,8 +1,6 @@
 const Orders = require("../models/Orders");
 const { Wallet, Transaction } = require("../models/Wallet");
 const RecentMatches = require('../models/Matches');
-const PlayerStats = require('../models/PlayerStats');
-const PlayerPerformance = require("../models/Performance");
 const User = require("../models/User");
 
 const createOrder = async (req, res) => {

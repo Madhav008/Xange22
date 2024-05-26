@@ -30,32 +30,14 @@ app.use(
   })
 );
 
-const seedPoints = require('./api/Seed Points/pointSeeder');
-
-app.get('/seedpoints', async (req, res) => {
-  await seedPoints();
-  res.json({ message: "Point system done" });
-})
-
 app.use('/auth', authRoutes);
 
-
-const protectroute = require('./api/routes/api');
-app.use('/protect', protectroute)
-
-const cron = require('./api/routes/cron')
-app.use('/cron', cron)
-
 const matches = require('./api/routes/matches')
-app.use('/match', matches)
+app.use('/ipo', matches)
 
 
 const player = require('./api/routes/player')
 app.use('/player', player)
-
-
-const performance = require('./api/routes/performance')
-app.use('/performance', performance)
 
 
 const order = require('./api/routes/order');
@@ -68,8 +50,6 @@ app.use("/wallet", wallet);
 const fees = require('./api/routes/fees');
 app.use('/fees', fees);
 
-const payment = require('./api/routes/payment')
-app.use('/payment', payment);
 
 const PORT = process.env.PORT || 3000;
 

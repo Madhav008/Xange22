@@ -1,19 +1,6 @@
 const RecentMatches = require('../models/Matches');
 
 
-async function getLiveMacthes(req, res) {
-    try {
-        let query = { status: "started" };
-        if (!req.user?.isAdmin) {
-            query.success = false;
-        }
-        const liveMatches = await RecentMatches.find(query);
-        res.status(200).json({ matches: liveMatches });
-    } catch (error) {
-        console.log('Error occurred:', error.message);
-        res.status(500).json({ error: error.message });
-    }
-}
 
 async function getUpcommingMacthes(req, res) {
     try {
@@ -29,21 +16,19 @@ async function getUpcommingMacthes(req, res) {
     }
 }
 
-async function getFinishedMacthes(req, res) {
+async function getMatchDetail(req, res) {
     try {
-        let query = { status: "completed" };
+        let query = { name: req.params.iponame };
         if (!req.user?.isAdmin) {
             query.success = false;
         }
-        
-        const completedMatches = await RecentMatches.find(query);
-        res.status(200).json({ matches: completedMatches });
+        const upcomingMatches = await RecentMatches.find(query);
+        res.status(200).json({ matches: upcomingMatches });
     } catch (error) {
         console.log('Error occurred:', error.message);
         res.status(500).json({ error: error.message });
     }
 }
-
 async function updateMatch(req, res) {
     try {
         // Extracting matchId from the URL parameters and updates from the request body
@@ -66,7 +51,7 @@ async function updateMatch(req, res) {
 }
 
 
-module.exports = { getLiveMacthes, getUpcommingMacthes, getFinishedMacthes, updateMatch }
+module.exports = {getUpcommingMacthes, updateMatch, getMatchDetail}
 
 
 
