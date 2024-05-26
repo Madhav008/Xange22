@@ -104,7 +104,7 @@ const register = async (req, res) => {
   try {
     // Check if required fields are provided
     const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    if (!email || !password) {
       return res.status(400).json({ message: 'Please provide username, email, and password' });
     }
 
@@ -132,7 +132,7 @@ const register = async (req, res) => {
 
     // Create a new user
     const user = new User({
-      displayName: username,
+      displayName: email.split("@")[0],
       email,
       password: hashedPassword,
     });
@@ -172,7 +172,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '30d' });
 
     // Include the token in the response
-    res.status(200).json({ user, token });
+    res.status(200).json({ user, "access": token, });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -182,6 +182,7 @@ const login = async (req, res) => {
 //USER
 const user = async (req, res) => {
   let token
+  console.log(req.headers)
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
