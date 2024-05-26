@@ -24,24 +24,7 @@ const TransactionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Wallet'
     },
-    transactionId: {
-        type: String,
-        unique: true
-    },
-    amount: Number,
-    type: {
-        type: String,
-        enum: ['credit', 'debit']
-    },
-    description: String,
-    transactionStatus: {
-        type: Boolean,
-        default: false
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+    transactions: [String]
 });
 
 

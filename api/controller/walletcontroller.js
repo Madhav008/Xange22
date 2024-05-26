@@ -49,7 +49,7 @@ const createwallet = async (req, res) => {
 const getwallet = async (req, res) => {
     try {
         // Extract user ID from request body or headers based on your authentication
-        const { userid } = req.params;
+        const userid  = req.user.id;
         console.log(userid);
         // Validate that userid is provided
         if (!userid) {

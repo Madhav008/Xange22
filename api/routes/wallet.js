@@ -5,7 +5,7 @@ const { protect, admin } = require('../midleware/authmiddlware');
 
 // Example protected API route
 router.post('/createwallet', apiController.createwallet);
-router.get('/getbalance/:userid', protect, apiController.getwallet);
+router.get('/getbalance', protect, apiController.getwallet);
 router.post('/update', admin, apiController.updateWallet)
 
 router.post('/withdraw', protect, apiController.withdraw);

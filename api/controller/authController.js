@@ -160,12 +160,12 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(404).json("User not found");
+      return res.status(404).json({message:"User not found"});
     }
 
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) {
-      return res.status(400).json("Wrong password");
+      return res.status(401).json({message:"Wrong password"});
     }
 
     // Generate JWT token
@@ -190,7 +190,7 @@ const user = async (req, res) => {
 
     try {
       token = req.headers.authorization.split(' ')[1]
-      if (!token) {
+      if (!token||token==null) {
         res.status(401).json({ message: "Not authorized, no token" })
       }
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
