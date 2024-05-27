@@ -1,39 +1,24 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    price: {
-        type: Number,
-        required: true
-    },
-    amount: {
-        type: Number,
-        required: true,
-    },
-    qty: {
-        type: Number,
-        required: true
-    },
-    user: {
-        type: String,
-        required: true
-    },
+    UserID: String,
+    StockID: String,
+    BrokerID: String,
     orderType: {
         type: String,
-        enum: ["buy", "sell"],
+        enum: ["Buy", "Sell"],
         required: true
     },
-    timestamp: String,
-    playerId: String,
-    matchId: String,
-    teamId: String,
-    fees: Number,
-    isPayout: {
-        type: Boolean, default: false
+    quantity: Number,
+    priceAtOrder: Number,
+    commissionPaid: Number,
+    orderDate: Date,
+    status: {
+        type: String,
+        enum: ["Pending", "Completed", "Cancelled"],
+        required: true
     },
-    player_point: { type: Number, default: 0 },
-    profit: { type: Number, default: 0.0 }
 });
-
 const Orders = mongoose.model('Orders', orderSchema);
 
 module.exports = Orders;

@@ -36,10 +36,6 @@ const matches = require('./api/routes/matches')
 app.use('/ipo', matches)
 
 
-const player = require('./api/routes/player')
-app.use('/player', player)
-
-
 const order = require('./api/routes/order');
 app.use("/order", order)
 
@@ -47,9 +43,9 @@ app.use("/order", order)
 const wallet = require('./api/routes/wallet');
 app.use("/wallet", wallet);
 
-const fees = require('./api/routes/fees');
-app.use('/fees', fees);
 
+const broker = require('./api/routes/broker');
+app.use("/broker", broker);
 
 const PORT = process.env.PORT || 3000;
 

@@ -15,8 +15,6 @@ const createWalletHelper = async (userid) => {
 
 }
 
-
-
 // Controller function to create a wallet
 const createwallet = async (req, res) => {
     try {
@@ -105,7 +103,7 @@ const deposit = async (userid, amount, transactionId) => {
             amount: roundedAmount,
             type: 'credit',
             description: 'Deposit',
-            transactionStatus: true, // Set initial status to false
+            transactionStatus: false, // Set initial status to false
         });
 
         return { balance: userWallet.balance, depositTransaction };
@@ -158,7 +156,7 @@ const withdraw = async (req, res) => {
             amount: roundedAmount,
             type: 'debit',
             description: 'Withdrawal',
-            transactionStatus: true, // Set initial status to false
+            transactionStatus: false, // Set initial status to false
         });
 
         res.status(200).json({ balance: userWallet.balance, withdrawTransaction });
@@ -168,68 +166,24 @@ const withdraw = async (req, res) => {
     }
 };
 
-// Controller function to get all transactions
-const getTransactions = async (req, res) => {
-    try {
-        // Fetch all transactions from the database
-        const transactions = await Transaction.find();
-
-        res.status(200).json({ transactions });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
 
 // Controller function to get transactions for a single user
 const getUserTransactions = async (req, res) => {
     try {
         const { walletId } = req.params;
-
         // Validate that walletId is provided
         if (!walletId) {
             return res.status(400).json({ error: 'Wallet ID is required.' });
         }
-
         // Find transactions for the specified user
         const userTransactions = await Transaction.find({ walletId: walletId });
-
         res.status(200).json({ userTransactions });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 // Controller function to update a transaction by the admin
-const updateTransaction = async (req, res) => {
-    try {
-        const { transactionId } = req.params;
-        const { transactionStatus } = req.body;
-
-        // Validate that transactionStatus is provided
-        if (transactionStatus === undefined) {
-            return res.status(400).json({ error: 'Transaction status is required.' });
-        }
-
-        // Find the transaction by ID and update its status
-        const updatedTransaction = await Transaction.findByIdAndUpdate(
-            transactionId,
-            { $set: { transactionStatus } },
-            { new: true }
-        );
-
-        if (!updatedTransaction) {
-            return res.status(404).json({ error: 'Transaction not found.' });
-        }
-
-        res.status(200).json({ updatedTransaction });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
-
 const getPendingDeposits = async (req, res) => {
     try {
         // Fetch pending deposit transactions (where transactionStatus is false)
@@ -241,7 +195,6 @@ const getPendingDeposits = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 // Controller function to get pending withdrawal requests for the admin
 const getPendingWithdrawals = async (req, res) => {
     try {
@@ -254,7 +207,6 @@ const getPendingWithdrawals = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 const updateWallet = async (req, res) => {
     const { userId, earningOrLoss } = req.body
     try {
@@ -291,16 +243,13 @@ const updateWallet = async (req, res) => {
         throw new Error(`Failed to update wallet: ${error.message}`);
     }
 }
-
 module.exports = {
     createWalletHelper,
     createwallet,
     getwallet,
-    deposit,
     withdraw,
-    getTransactions,
+    deposit,
     getUserTransactions,
-    updateTransaction,
     getPendingDeposits,
     getPendingWithdrawals, updateWallet
 };

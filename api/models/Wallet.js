@@ -24,9 +24,25 @@ const TransactionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Wallet'
     },
-    transactions: [String]
+    transactionId: {
+        type: String,
+        unique: true
+    },
+    amount: Number,
+    type: {
+        type: String,
+        enum: ['credit', 'debit']
+    },
+    description: String,
+    transactionStatus: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
-
 
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);

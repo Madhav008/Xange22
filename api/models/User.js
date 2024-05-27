@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  googleId: {
-    type: String,
-  },
-  displayName: {
+  displayName:{
     type: String,
   },
   email: {
@@ -20,7 +17,16 @@ const userSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false
-  }
+  },
+  isBroker:{
+    type:Boolean,
+    default:false,
+  },
+  brokerID: {
+    type: String,
+    default: null,
+  },
+  role: String,
 });
 
 const User = mongoose.model('User', userSchema);

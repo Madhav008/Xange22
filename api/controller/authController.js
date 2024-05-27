@@ -1,4 +1,3 @@
-const { google } = require('googleapis');
 require('dotenv').config();
 const User = require('../models/User'); // Import the User model
 const jwt = require('jsonwebtoken');
@@ -12,70 +11,11 @@ const sendEmail = require('../../send_maiil');
 // Secret key for JWT
 const jwtSecret = process.env.JWT_SECRET;
 
-// Replace with your Google OAuth2.0 credentials
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_CALLBACK_URL
-);
 
 
-const googleLogin = (req, res) => {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-  });
-  res.redirect(authUrl);
-}
 
 
-const googleCallback = async (req, res) => {
-  const { code } = req.query;
 
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-
-    const oauth2 = google.oauth2({
-      version: 'v2',
-      auth: oauth2Client,
-    });
-
-    const { data } = await oauth2.userinfo.get();
-
-    try {
-      // Check if the user already exists in the database
-      let user = await User.findOne({ googleId: data.id });
-
-      if (!user) {
-        // If the user doesn't exist, create a new user
-        user = new User({
-          googleId: data.id,
-          displayName: data.name,
-          email: data.email,
-          image: data.picture
-        });
-        // Save the user to the database
-        await user.save();
-      }
-
-      // Create a JWT token with user data
-      const token = jwt.sign({ userData: data }, jwtSecret, {
-        expiresIn: '30d',
-      });
-
-      // Set the JWT token in the response body
-      res.status(200).json({ user, token });
-
-    } catch (error) {
-      console.log(error.message)
-    }
-
-  } catch (error) {
-    console.error('Error retrieving user data:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
 
 
 const successEndpoint = (async (req, res) => {
@@ -305,8 +245,5 @@ const resetPassword = async (req, res) => {
 
 
 module.exports = {
-  googleLogin,
-  googleCallback,
-  successEndpoint,
   forget, verify, register, login, user, resetPassword
 };
