@@ -170,7 +170,7 @@ const withdraw = async (req, res) => {
 // Controller function to get transactions for a single user
 const getUserTransactions = async (req, res) => {
     try {
-        const { walletId } = req.params;
+        const walletId  = req.user.id;
         // Validate that walletId is provided
         if (!walletId) {
             return res.status(400).json({ error: 'Wallet ID is required.' });

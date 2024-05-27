@@ -11,7 +11,7 @@ router.post('/update', admin, apiController.updateWallet)
 router.post('/withdraw', protect, apiController.withdraw);
 
 
-router.get('/getusertransactions/:walletId', protect, apiController.getUserTransactions);
+router.get('/getusertransactions', protect, apiController.getUserTransactions);
 
 
 // Example protected API routes for admin
