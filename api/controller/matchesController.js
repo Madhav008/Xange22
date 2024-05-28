@@ -1,12 +1,15 @@
+const Broker = require('../models/Broker');
 const RecentMatches = require('../models/Matches');
+const User = require('../models/User');
 
 async function getUpcommingMacthes(req, res) {
     try {
-        let query = { };
+        const query = {};
         if (!req.user?.isAdmin) {
             query.success = false;
         }
         const upcomingMatches = await RecentMatches.find(query);
+        
         res.status(200).json({ ipos: upcomingMatches });
     } catch (error) {
         console.log('Error occurred:', error.message);
@@ -16,12 +19,25 @@ async function getUpcommingMacthes(req, res) {
 
 async function getMatchDetail(req, res) {
     try {
+        const userid = req.user.id;
+        const user = await User.findOne({ "_id":userid });
+ 
+       if(!user) {
+            res.status(401).json({ error: 'Unauthorized' });
+        }
+        const brokerId = user.brokerID;
+        console.log(brokerId)
+        const broker = await Broker.findOne({ "brokerId":brokerId });
+       
         let query = { shortForm: req.params.iponame };
         if (!req.user?.isAdmin) {
             query.success = false;
         }
         const upcomingMatches = await RecentMatches.findOne(query);
-        res.status(200).json({ data: upcomingMatches });
+        console.log(broker);
+        const finaldata ={...upcomingMatches?._doc, ...Object.assign({}, broker?._doc)}
+        finaldata._id = upcomingMatches._id
+        res.status(200).json({ data: finaldata });
     } catch (error) {
         console.log('Error occurred:', error.message);
         res.status(500).json({ error: error.message });

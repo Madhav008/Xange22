@@ -1,14 +1,25 @@
 const Broker = require('../models/Broker');
 const User = require('../models/User');
 
+
+const createBrokerHelper = async (brokerData) => {
+  try {
+    const newBroker = await new Broker(brokerData).save();
+    return newBroker;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 const createBroker = async (req, res) => {
   try {
-    const newBroker = await new Broker(req.body).save();
+    const newBroker = await createBrokerHelper(req.body);
     res.status(201).json(newBroker);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 const getBrokers = async (req, res) => {
   try {
@@ -68,6 +79,7 @@ const getUsersByBrokerId = async (req, res) => {
 
 
 module.exports = {
+  createBrokerHelper,
   createBroker,
   getBrokers,
   getBroker,

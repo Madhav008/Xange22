@@ -3,6 +3,8 @@ const router = express.Router();
 const Orders = require('../models/Orders');
 const { Wallet } = require('../models/Wallet');
 const { protect } = require('../midleware/authmiddlware');
+const User = require('../models/User');
+const RecentMatches = require('../models/Matches');
 
 // Update the order status
 async function updateOrderStatus(req, res) {
@@ -14,22 +16,27 @@ async function updateOrderStatus(req, res) {
             { status },
             { new: true }
         );
-        res.status(200).json(updatedOrder);
+        res.status(200).json({"message":`Order Closed successfully`});
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
 
 // Create a buy order
-async function updateWalletBalance(wallet, totalAmount, type) {
-    wallet.balance -= totalAmount;
-    await wallet.save();
-}
 
 async function createBuyOrder(req, res) {
-    const { userId, stockId, quantity, price } = req.body;
+    const { stockId, quantity, price } = req.body;
     try {
-        const wallet = await Wallet.findOne({ userId });
+        const userId = req.user.id;
+        //find the user from the userId
+        const user = await User.findOne({ "_id":userId });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const brokerId = user.brokerID;
+
+        const wallet = await Wallet.findOne({ "userid":userId });
         if (!wallet) {
             return res.status(404).json({ message: 'Wallet not found' });
         }
@@ -38,14 +45,56 @@ async function createBuyOrder(req, res) {
             return res.status(400).json({ message: 'Insufficient balance' });
         }
 
-        await updateWalletBalance(wallet, totalAmount, 'Buy');
+        await Wallet.updateOne({ userid: userId }, { $inc: { balance: -totalAmount } });
 
         const order = new Orders({
             userId,
             stockId,
+            brokerId,
             orderType: 'Buy',
             quantity,
-            price,
+            priceAtOrder: price,
+            orderDate : Date.now(),
+            commissionPaid:10,
+            status: 'Pending'
+        });
+        const createdOrder = await order.save();
+        res.status(201).json(createdOrder);
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: error.message });
+    }
+}
+
+async function createSellOrder(req, res) {
+    const {  stockId, quantity, price } = req.body;
+    try {
+        const userId = req.user.id;
+
+        //find the user from the userId
+        const user = await User.findOne({ "_id":userId });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const brokerId = user.brokerID;
+
+        const wallet = await Wallet.findOne({ "userid":userId });
+        if (!wallet) {
+            return res.status(404).json({ message: 'Wallet not found' });
+        }
+        const totalAmount = price * quantity;
+
+        await Wallet.updateOne({ userid: userId }, { $inc: { balance: -totalAmount } });
+
+        const order = new Orders({
+            userId,
+            stockId,
+            brokerId,
+            orderType: 'Buy',
+            quantity,
+            priceAtOrder: price,
+            orderDate : Date.now(),
+            commissionPaid:10,
             status: 'Pending'
         });
         const createdOrder = await order.save();
@@ -55,27 +104,38 @@ async function createBuyOrder(req, res) {
     }
 }
 
-async function createSellOrder(req, res) {
-    const { userId, stockId, quantity, price } = req.body;
+async function getUserOrders(req, res) {
     try {
-        const wallet = await Wallet.findOne({ userId });
-        if (!wallet) {
-            return res.status(404).json({ message: 'Wallet not found' });
+        const userId = req.user.id;
+        const query = {
+            status: { $in: ['Pending', 'Completed'] }
         }
-        const totalAmount = price * quantity;
+        const orders = await Orders.find({ userId, ...query });
+        const ordersWithStockDetail = await Promise.all(orders.map(async (order) => {
+            const stock = await RecentMatches.findById(order.stockId);
+            console.log(order.stockId)
+            console.log(stock)
+            return {
+                orderId: order._id,
+                quantity: order.quantity,
+                priceAtOrder: order.priceAtOrder,
+                orderDate: order.orderDate,
+                commissionPaid: order.commissionPaid,
+                status: order.status,
+                ...stock?._doc
+            };
+        }));
+        res.status(200).json({ orders: ordersWithStockDetail });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
 
-        await updateWalletBalance(wallet, totalAmount, 'Sell');
-
-        const order = new Orders({
-            userId,
-            stockId,
-            orderType: 'Sell',
-            quantity,
-            price,
-            status: 'Pending'
-        });
-        const createdOrder = await order.save();
-        res.status(201).json(createdOrder);
+async function getBrokerOrders(req,res){
+    try {
+        const brokerId = req.params.brokerId;
+        const orders = await Orders.find({ brokerId });
+        res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -84,6 +144,11 @@ async function createSellOrder(req, res) {
 router.put('/:orderId',protect, updateOrderStatus);
 router.post('/buy', protect,createBuyOrder);
 router.post('/sell',protect, createSellOrder);
+router.get('/user', protect, getUserOrders);
+
+
+router.get('/broker/:brokerId', protect, getBrokerOrders);
+
 
 module.exports = router;
 

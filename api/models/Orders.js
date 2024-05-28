@@ -1,23 +1,24 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    UserID: String,
-    StockID: String,
-    BrokerID: String,
+    userId: { type: String, required: true },
+    stockId: { type: String, required: true },
+    brokerId: { type: String, required: true },
     orderType: {
         type: String,
         enum: ["Buy", "Sell"],
         required: true
     },
-    quantity: Number,
-    priceAtOrder: Number,
-    commissionPaid: Number,
+    quantity: { type: Number, required: true },
+    priceAtOrder: { type: Number, required: true },
+    commissionPaid: { type: Number, required: true },
     orderDate: Date,
     status: {
         type: String,
         enum: ["Pending", "Completed", "Cancelled"],
         required: true
     },
+    
 });
 const Orders = mongoose.model('Orders', orderSchema);
 

@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 
 const { createWalletHelper } = require('./walletcontroller');
 const sendEmail = require('../../send_maiil');
+const { createBroker, createBrokerHelper } = require('./brokerController');
 
 
 
@@ -43,7 +44,7 @@ const successEndpoint = (async (req, res) => {
 const register = async (req, res) => {
   try {
     // Check if required fields are provided
-    const { username, email, password } = req.body;
+    const { username,isBroker, email, password,brokerId } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: 'Please provide username, email, and password' });
     }
@@ -77,6 +78,9 @@ const register = async (req, res) => {
       password: hashedPassword,
     });
 
+    if(brokerId){
+      user.brokerID = brokerId;
+    }
     // Save the new user to the database
     const newUser = await user.save();
 
@@ -86,10 +90,23 @@ const register = async (req, res) => {
     // Create a wallet for the new user
     await createWalletHelper(newUser._id.toString());
 
+    if(isBroker){
+      const payload  = {
+        StandardCommissionRate:30,
+        DiscountedCommissionRate: 10, 
+        DiscountThreshold: 1000,
+        brokerId:newUser._id.toString(),
+      }
+          await createBrokerHelper(payload);
+          newUser.isBroker =true;
+          await user.save();
+      }
+
     // Return the new user and the token in the response
-    res.status(200).json({ user: newUser, token });
+    res.status(200).json({ user: newUser, "access":token });
   } catch (error) {
-    res.status(500).json(error);
+    console.log(error)
+    res.status(500).json(error.message);
   }
 };
 

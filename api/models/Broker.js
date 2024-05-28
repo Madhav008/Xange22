@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const brokerSchema = new mongoose.Schema({
-    UserID: {
+    brokerId: {
         type:String,
         unique: true
     },
