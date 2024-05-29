@@ -11,12 +11,23 @@ async function updateOrderStatus(req, res) {
     const { orderId } = req.params;
     const { status } = req.body;
     try {
-        const updatedOrder = await Orders.findByIdAndUpdate(
-            orderId,
-            { status },
-            { new: true }
-        );
-        res.status(200).json({"message":`Order Closed successfully`});
+        const order = await Orders.findById(orderId);
+        if(status === 'Cancelled') {
+            const stock = await RecentMatches.findById(order.stockId);
+            const closedPrice = stock.price;
+            const updatedOrder = await Orders.findByIdAndUpdate(
+                orderId,
+                { status, closedPrice },
+                { new: true }
+            );
+        } else {
+            const updatedOrder = await Orders.findByIdAndUpdate(
+                orderId,
+                { status },
+                { new: true }
+            );
+        }
+        res.status(200).json({"message":`Order status updated successfully`});
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -113,12 +124,11 @@ async function getUserOrders(req, res) {
         const orders = await Orders.find({ userId, ...query });
         const ordersWithStockDetail = await Promise.all(orders.map(async (order) => {
             const stock = await RecentMatches.findById(order.stockId);
-            console.log(order.stockId)
-            console.log(stock)
             return {
                 orderId: order._id,
                 quantity: order.quantity,
                 priceAtOrder: order.priceAtOrder,
+                orderType: order.orderType,
                 orderDate: order.orderDate,
                 commissionPaid: order.commissionPaid,
                 status: order.status,
@@ -141,12 +151,39 @@ async function getBrokerOrders(req,res){
     }
 }
 
+async function getClosedOrders(req, res) {
+    try {
+        const userId = req.user.id;
+        const query = {
+            status: { $in: ['Cancelled'] }
+        }
+        const orders = await Orders.find({ userId, ...query });
+        const ordersWithStockDetail = await Promise.all(orders.map(async (order) => {
+            const stock = await RecentMatches.findById(order.stockId);
+            return {
+                orderId: order._id,
+                quantity: order.quantity,
+                priceAtOrder: order.priceAtOrder,
+                orderType: order.orderType,
+                orderDate: order.orderDate,
+                closedPrice : order.closedPrice,
+                commissionPaid: order.commissionPaid,
+                status: order.status,
+                ...stock?._doc
+            };
+        }));
+        res.status(200).json({ orders: ordersWithStockDetail });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
 router.put('/:orderId',protect, updateOrderStatus);
 router.post('/buy', protect,createBuyOrder);
 router.post('/sell',protect, createSellOrder);
 router.get('/user', protect, getUserOrders);
-
-
+router.get('/user/history', protect, getClosedOrders);
 router.get('/broker/:brokerId', protect, getBrokerOrders);
 
 

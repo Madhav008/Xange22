@@ -18,7 +18,7 @@ const orderSchema = new mongoose.Schema({
         enum: ["Pending", "Completed", "Cancelled"],
         required: true
     },
-    
+    closedPrice: { type: Number },
 });
 const Orders = mongoose.model('Orders', orderSchema);
 
