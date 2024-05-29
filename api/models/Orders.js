@@ -19,7 +19,9 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
     closedPrice: { type: Number },
-});
+},
+{ timestamps: true, }
+);
 const Orders = mongoose.model('Orders', orderSchema);
 
 module.exports = Orders;

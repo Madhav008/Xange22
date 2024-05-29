@@ -157,7 +157,7 @@ async function getClosedOrders(req, res) {
         const query = {
             status: { $in: ['Cancelled'] }
         }
-        const orders = await Orders.find({ userId, ...query });
+        const orders = await Orders.find({ userId, ...query }).sort({ updatedAt: -1 });
         const ordersWithStockDetail = await Promise.all(orders.map(async (order) => {
             const stock = await RecentMatches.findById(order.stockId);
             return {
