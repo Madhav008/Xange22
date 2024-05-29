@@ -101,7 +101,7 @@ async function createSellOrder(req, res) {
             userId,
             stockId,
             brokerId,
-            orderType: 'Buy',
+            orderType: 'Sell',
             quantity,
             priceAtOrder: price,
             orderDate : Date.now(),
