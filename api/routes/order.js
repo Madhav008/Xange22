@@ -12,14 +12,46 @@ async function updateOrderStatus(req, res) {
     const { status } = req.body;
     try {
         const order = await Orders.findById(orderId);
+        //Add the check if the order is already order.status == cancelled or not
+        if (order.status === 'Cancelled') {
+            return res.status(400).json({ message: 'Order already cancelled' });
+        }
+        
         if(status === 'Cancelled') {
             const stock = await RecentMatches.findById(order.stockId);
             const closedPrice = stock.price;
+            
+            if(order.status==='Pending'){
+                await Wallet.updateOne({ userid: order.userId }, { $inc: { balance: order.priceAtOrder } });
+                await Orders.updateOne({ _id: orderId }, { $set: { status: 'Cancelled' } });
+                return res.status(200).json({ message: 'Order cancelled without comission successfully' });
+            }
+            
+            //If the type of the order is the buy order then return amount  = profit/loss
+            const wallet = await Wallet.findOne({ "userid":order.userId });
+            if (!wallet) {
+                return res.status(404).json({ message: 'Wallet not found' });
+            }
+            if(order.orderType=='Buy'){
+                const pnl = closedPrice - order.priceAtOrder ;
+                console.log(pnl)
+                const totalAmount =  pnl * order.quantity;
+                await Wallet.updateOne({ userid: order.userId }, { $inc: { balance: totalAmount } });
+            }
+
+            if(order.orderType=='Sell'){
+                const pnl = closedPrice-order.priceAtOrder;
+                
+                const totalAmount =  ((pnl * -1)+order.priceAtOrder) * order.quantity;
+                await Wallet.updateOne({ userid: order.userId }, { $inc: { balance: totalAmount } });
+                
+            }
             const updatedOrder = await Orders.findByIdAndUpdate(
                 orderId,
                 { status, closedPrice },
                 { new: true }
             );
+            //if the type of the order is sell then return amount  = profit/loss + invested amount
         } else {
             const updatedOrder = await Orders.findByIdAndUpdate(
                 orderId,
@@ -29,6 +61,7 @@ async function updateOrderStatus(req, res) {
         }
         res.status(200).json({"message":`Order status updated successfully`});
     } catch (error) {
+        // console.log(error)
         res.status(500).json({ message: error.message });
     }
 }

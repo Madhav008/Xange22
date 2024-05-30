@@ -1,4 +1,5 @@
 // Import the necessary models and modules
+const User = require('../models/User');
 const { Wallet, Transaction } = require('../models/Wallet');
 
 
@@ -69,47 +70,46 @@ const getwallet = async (req, res) => {
 };
 
 // Controller function to deposit funds
-const deposit = async (userid, amount, transactionId) => {
+const deposit = async (req, res) => {
     try {
+        const { userid, amount } = req.body;
+        const isBroker = req.user.isBroker;
 
-        // Validate that userid and amount are provided
-        if (!userid || !amount) {
-            return { error: 'User ID and amount are required.' };
+        if (!isBroker) {
+            return res.status(400).json({ error: 'Only Brokers can deposit funds' });
         }
 
+        if (!userid || !amount) {
+            return res.status(400).json({ error: 'User ID and amount are required.' });
+        }
 
-        // Check if the amount is a positive number
         const parsedAmount = parseFloat(amount);
         if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            return { error: 'Amount must be a positive number.' };
+            return res.status(400).json({ error: 'Amount must be a positive number.' });
         }
 
-        // Find the wallet for the specified user
         const userWallet = await Wallet.findOne({ userid });
-
         if (!userWallet) {
-            return { error: 'Wallet not found for the user.' };
+            return res.status(404).json({ error: 'Wallet not found for the user.' });
         }
+
         const roundedAmount = parseFloat(parsedAmount.toFixed(2));
 
-        // Update the balance in the wallet
         userWallet.balance += roundedAmount;
         await userWallet.save();
 
-        // Create a transaction record
         const depositTransaction = await Transaction.create({
-            walletId: userWallet._id,
-            transactionId: transactionId,
+            walletId: userid,
             amount: roundedAmount,
             type: 'credit',
             description: 'Deposit',
             transactionStatus: false, // Set initial status to false
         });
 
-        return { balance: userWallet.balance, depositTransaction };
+        return res.status(200).json({ balance: userWallet.balance, depositTransaction });
     } catch (error) {
         console.error(error);
-        return { error: 'Internal Server Error' };
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -176,13 +176,42 @@ const getUserTransactions = async (req, res) => {
             return res.status(400).json({ error: 'Wallet ID is required.' });
         }
         // Find transactions for the specified user
-        const userTransactions = await Transaction.find({ walletId: walletId });
+        const userTransactions = await Transaction.find({ walletId: walletId })
+            .sort({ createdAt: -1 }); // Sort by createdAt in descending order
         res.status(200).json({ userTransactions });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
+const getBrokerTransactions = async (req, res) => {
+    try {
+        //Get the broker id and then  and then get the transactions of all those users
+        const brokerId = req.user._id;
+
+        // Validate that brokerId is provided
+        if (!brokerId) {
+            return res.status(400).json({ error: 'Broker ID is required.' });
+        }
+
+        // search the users who have the same brokerId
+        const users = await User.find({ brokerID: brokerId });
+
+        const userWallets = await Wallet.find({ userid: { $in: users.map(user => user._id) } });
+        
+        const transactions = await Transaction.find({ walletId: { $in: userWallets.map(wallet => wallet.userid) } });
+
+
+        res.status(200).json({ transactions });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 // Controller function to update a transaction by the admin
 const getPendingDeposits = async (req, res) => {
     try {
@@ -250,6 +279,7 @@ module.exports = {
     withdraw,
     deposit,
     getUserTransactions,
+    getBrokerTransactions,
     getPendingDeposits,
     getPendingWithdrawals, updateWallet
 };

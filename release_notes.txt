@@ -1,0 +1,7 @@
+----------------------------------------------
+Version 1.1.0
+Features/Bugs Fixes:
+    1. Fix the close orders add money to wallet 
+    2. create the transaction when user deposit and withdraw
+    3. close the orders
+----------------------------------------------

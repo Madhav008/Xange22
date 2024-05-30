@@ -8,10 +8,13 @@ router.post('/createwallet', apiController.createwallet);
 router.get('/getbalance', protect, apiController.getwallet);
 router.post('/update', admin, apiController.updateWallet)
 
+router.post('/deposit', protect, apiController.deposit);
 router.post('/withdraw', protect, apiController.withdraw);
 
 
 router.get('/getusertransactions', protect, apiController.getUserTransactions);
+router.get('/getBrokerTransactions', protect, apiController.getBrokerTransactions);
+
 
 
 // Example protected API routes for admin
