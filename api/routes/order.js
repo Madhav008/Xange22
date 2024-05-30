@@ -23,7 +23,7 @@ async function updateOrderStatus(req, res) {
             
             if(order.status==='Pending'){
                 await Wallet.updateOne({ userid: order.userId }, { $inc: { balance: order.priceAtOrder } });
-                await Orders.updateOne({ _id: orderId }, { $set: { status: 'Cancelled' } });
+                await Orders.updateOne({ _id: orderId }, { $set: { status: 'Cancelled', closedPrice } });
                 return res.status(200).json({ message: 'Order cancelled without comission successfully' });
             }
             
@@ -55,7 +55,7 @@ async function updateOrderStatus(req, res) {
         } else {
             const updatedOrder = await Orders.findByIdAndUpdate(
                 orderId,
-                { status },
+                { status,closedPrice },
                 { new: true }
             );
         }
